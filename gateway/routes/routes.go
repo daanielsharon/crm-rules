@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"crm-rules/gateway/handlers"
-	localMiddleware "crm-rules/gateway/middleware"
+	"gateway/handlers"
+	localMiddleware "gateway/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"

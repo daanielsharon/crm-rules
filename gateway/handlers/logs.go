@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"crm-rules/gateway/utils"
+	"gateway/utils"
 	"io"
 	"net/http"
 )

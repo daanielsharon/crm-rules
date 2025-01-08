@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crm-rules/gateway/routes"
+	"gateway/routes"
 	"log"
 	"net/http"
 )
