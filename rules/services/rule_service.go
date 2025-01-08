@@ -5,8 +5,6 @@ import (
 	"rules/models"
 	"rules/storage"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type RuleService struct {
@@ -21,7 +19,7 @@ func (s *RuleService) CreateRule(rule *models.Rule) error {
 	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
 		return errors.New("all fields (name, condition, action) are required")
 	}
-	rule.ID = uuid.New().String()
+
 	rule.CreatedAt = time.Now()
 	rule.UpdatedAt = time.Now()
 	return s.Storage.CreateRule(*rule)
@@ -39,6 +37,7 @@ func (s *RuleService) UpdateRule(rule *models.Rule) error {
 	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
 		return errors.New("all fields (name, condition, action) are required")
 	}
+
 	rule.UpdatedAt = time.Now()
 	return s.Storage.UpdateRule(*rule)
 }

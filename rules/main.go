@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"rules/db"
 	"rules/handlers"
 	"rules/routes"
 	"rules/services"
@@ -11,7 +12,10 @@ import (
 
 func main() {
 	// Initialize the database
-	storageLayer := storage.NewStorage("rules.db")
+	database := db.InitPostgres()
+	defer database.Close()
+
+	storageLayer := storage.NewStorage(database)
 
 	// Initialize services
 	service := services.NewRuleService(storageLayer)
