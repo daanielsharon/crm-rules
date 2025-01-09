@@ -106,6 +106,10 @@ func mapScheduleToCron(schedule string) string {
 		return "0 * * * *"
 	case "daily_at_midnight":
 		return "0 0 * * *"
+	case "every_5_minutes":
+		return "*/5 * * * *"
+	case "every_10_minutes":
+		return "*/10 * * * *"
 	default:
 		log.Printf("Unknown schedule: %s. Defaulting to hourly.", schedule)
 		return "0 * * * *"

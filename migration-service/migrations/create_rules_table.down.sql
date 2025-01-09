@@ -1,2 +1,0 @@
-DROP TABLE IF EXISTS execution_logs;
-DROP TABLE IF EXISTS rules;
