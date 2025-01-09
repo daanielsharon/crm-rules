@@ -5,22 +5,25 @@ import (
 	"time"
 
 	"worker-service/models"
+	"worker-service/publisher"
 	"worker-service/storage"
 
 	"github.com/robfig/cron/v3"
 )
 
 type Scheduler struct {
-	Storage *storage.Storage
-	Cron    *cron.Cron
-	Rules   map[string]cron.EntryID
+	Storage   *storage.Storage
+	Publisher *publisher.Publisher
+	Cron      *cron.Cron
+	Rules     map[string]cron.EntryID
 }
 
-func NewScheduler(storage *storage.Storage) *Scheduler {
+func NewScheduler(storage *storage.Storage, publisher *publisher.Publisher) *Scheduler {
 	return &Scheduler{
-		Storage: storage,
-		Cron:    cron.New(),
-		Rules:   make(map[string]cron.EntryID),
+		Storage:   storage,
+		Cron:      cron.New(),
+		Rules:     make(map[string]cron.EntryID),
+		Publisher: publisher,
 	}
 }
 
@@ -47,7 +50,6 @@ func (s *Scheduler) refreshRules() {
 
 	newRules := s.getNewRules(rules)
 	s.scheduleNewRules(newRules)
-
 	s.removeStaleRules(rules)
 }
 
@@ -70,7 +72,7 @@ func (s *Scheduler) scheduleNewRules(newRules []models.Rule) {
 func (s *Scheduler) addRuleToScheduler(rule models.Rule) {
 	cronExpression := mapScheduleToCron(rule.Schedule)
 	entryID, err := s.Cron.AddFunc(cronExpression, func() {
-		processRule(rule, s.Storage)
+		s.processRule(rule)
 	})
 	if err != nil {
 		log.Printf("Failed to schedule rule '%s': %v", rule.Name, err)
@@ -110,13 +112,14 @@ func mapScheduleToCron(schedule string) string {
 	}
 }
 
-func processRule(rule models.Rule, storage *storage.Storage) {
+func (s *Scheduler) processRule(rule models.Rule) {
 	log.Printf("Processing rule: %s", rule.Name)
 
-	err := storage.LogExecution(rule.ID, "success")
+	err := s.Publisher.PublishTask(publisher.NewTask(rule.ID, rule.Name, rule.Condition, rule.Action))
 	if err != nil {
-		log.Printf("Failed to log execution for rule %s: %v", rule.Name, err)
-	} else {
-		log.Printf("Rule executed successfully: %s", rule.Name)
+		log.Printf("Failed to publish task: %v", err)
+		return
 	}
+
+	log.Printf("Successfully sent task to execution service")
 }

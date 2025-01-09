@@ -1,39 +1,29 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
-	"os"
 
-	"worker-service/scheduler"
-	"worker-service/storage"
+	"worker-service/app"
+	"worker-service/config"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 func main() {
-	db, err := sql.Open("postgres", getDatabaseURL())
+	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to load config: %v", err)
 	}
-	defer db.Close()
 
-	store := storage.NewStorage(db)
-	cron := scheduler.NewScheduler(store)
-	cron.Start()
+	application, err := app.New(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize application: %v", err)
+	}
+	defer application.Cleanup()
 
-	// Block indefinitely to keep the process running.
+	log.Println("Starting worker service...")
+	application.Start()
+
+	// Block indefinitely to keep the process running
 	select {}
-}
-
-func getDatabaseURL() string {
-	host := os.Getenv("POSTGRES_HOST")
-	port := os.Getenv("POSTGRES_PORT")
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
 }
