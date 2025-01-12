@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"gateway/config"
 	"gateway/utils"
 	"io"
 	"net/http"
@@ -9,7 +10,8 @@ import (
 )
 
 func CreateRuleHandler(w http.ResponseWriter, r *http.Request) {
-	response, err := utils.ForwardRequest("http://localhost:8081/rules", http.MethodPost, r.Body)
+	serviceURLs := config.NewServiceURLs()
+	response, err := utils.ForwardRequest(serviceURLs.RulesServiceURL, http.MethodPost, r.Body)
 	if err != nil {
 		http.Error(w, "Failed to create rule: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -31,7 +33,8 @@ func UpdateRuleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := "http://localhost:8081/rules/" + ruleID
+	serviceURLs := config.NewServiceURLs()
+	url := serviceURLs.RulesServiceURL + "/" + ruleID
 	response, err := utils.ForwardRequest(url, http.MethodPut, r.Body)
 	if err != nil {
 		http.Error(w, "Failed to update rule: "+err.Error(), http.StatusInternalServerError)
