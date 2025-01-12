@@ -1,0 +1,20 @@
+# Use a minimal base image with Go installed
+FROM golang:1.20-alpine AS builder
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o gateway-service .
+
+FROM alpine:latest
+
+WORKDIR /root/
+
+COPY --from=builder /app/gateway-service .
+
+EXPOSE 8081
+
+CMD ["./gateway-service"]

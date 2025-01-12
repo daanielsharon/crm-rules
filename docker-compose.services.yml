@@ -1,0 +1,39 @@
+services:
+  scheduler:
+    build:
+      context: ./scheduler
+      dockerfile: Dockerfile
+    container_name: scheduler
+    environment:
+      REDIS_ADDR: redis:${REDIS_PORT}
+      REDIS_CHANNEL: scheduler_channel
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
+    networks:
+      - app-network
+    restart: always
+
+  rules-service:
+    build:
+      context: ./rules
+      dockerfile: Dockerfile
+    container_name: rules-service
+    environment:
+      REDIS_ADDR: redis:${REDIS_PORT}
+      REDIS_CHANNEL: rules_channel
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
+    networks:
+      - app-network
+    restart: always
+
+  task-execution-service:
+    build:
+      context: ./task-execution
+      dockerfile: Dockerfile
+    container_name: task-execution-service
+    environment:
+      REDIS_ADDR: redis:${REDIS_PORT}
+      REDIS_CHANNEL: task_channel
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
+    networks:
+      - app-network
+    restart: always
