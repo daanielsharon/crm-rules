@@ -37,6 +37,7 @@ configure_environment() {
     local DEFAULT_POSTGRES_PASSWORD="postgres"
     local DEFAULT_POSTGRES_DB="crm_rules"
     local DEFAULT_REDIS_PORT="6379"
+    local DEFAULT_REDIS_HOST="redis"
     local DEFAULT_REDIS_CHANNEL="crm_rules"
 
     log_info "Configuring environment variables..."
@@ -56,6 +57,9 @@ configure_environment() {
     read -p "Enter Postgres database [$DEFAULT_POSTGRES_DB]: " POSTGRES_DB
     POSTGRES_DB=${POSTGRES_DB:-$DEFAULT_POSTGRES_DB}
 
+    read -p "Enter Redis host [$DEFAULT_REDIS_HOST]: " REDIS_HOST
+    REDIS_HOST=${REDIS_HOST:-$DEFAULT_REDIS_HOST}
+
     REDIS_PORT=$(prompt_numeric_input "Enter Redis port [$DEFAULT_REDIS_PORT]: " "$DEFAULT_REDIS_PORT")
 
     read -p "Enter Redis channel [$DEFAULT_REDIS_CHANNEL]: " REDIS_CHANNEL
@@ -67,6 +71,7 @@ POSTGRES_PORT=$POSTGRES_PORT
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 POSTGRES_DB=$POSTGRES_DB
+REDIS_HOST=$REDIS_HOST
 REDIS_PORT=$REDIS_PORT
 REDIS_CHANNEL=$REDIS_CHANNEL
 EOF

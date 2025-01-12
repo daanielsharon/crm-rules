@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-      REDIS_ADDR: ${REDIS_PORT}
+      REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       REDIS_CHANNEL: ${REDIS_CHANNEL}
     networks:
       - app-network
@@ -18,7 +18,7 @@ services:
 
   rules-service:
     build:
-      context: ./rules-servcie
+      context: ./rules-service
       dockerfile: Dockerfile
     container_name: rules-service
     environment:
@@ -37,9 +37,9 @@ services:
       dockerfile: Dockerfile
     container_name: task-execution-service
     environment:
-      REDIS_ADDR: ${REDIS_PORT}
+      REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       REDIS_CHANNEL: ${REDIS_CHANNEL}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
     networks:
       - app-network
     restart: always
@@ -57,3 +57,7 @@ services:
     ports:
       - "8080:8080"
     restart: always
+
+networks:
+  app-network:
+    driver: bridge
