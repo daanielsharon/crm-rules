@@ -34,6 +34,7 @@ services:
       - app-network
     depends_on:
       - db
+    restart: "no"
 
 networks:
   app-network:

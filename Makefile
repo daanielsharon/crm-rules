@@ -11,6 +11,7 @@ start:
 stop:
 	docker compose -f docker-compose.services.yml down
 	docker compose -f docker-compose.migration.yml down
+	rm -f .env
 
 clean: stop
 	docker compose -f docker-compose.services.yml down -v
