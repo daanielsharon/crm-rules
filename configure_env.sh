@@ -31,7 +31,7 @@ prompt_numeric_input() {
 }
 
 configure_environment() {
-    local DEFAULT_HOST="localhost"
+    local DEFAULT_HOST="db"
     local DEFAULT_POSTGRES_PORT="5432"
     local DEFAULT_POSTGRES_USER="postgres"
     local DEFAULT_POSTGRES_PASSWORD="postgres"
