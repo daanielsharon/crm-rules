@@ -1,16 +1,14 @@
 FROM golang:1.23-alpine
 
-RUN apk add --no-cache bash build-base git openssh postgresql-client
-
-# Install golang-migrate for database migrations
-RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
 WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod tidy
 
 COPY . .
 
-RUN go build -o migration-service main.go
+COPY ./migrations /app/migrations
 
-COPY ./migrations ./migrations
+RUN go build -o migration-service main.go
 
 ENTRYPOINT ["/app/migration-service"]

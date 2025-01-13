@@ -18,6 +18,11 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   migration:
     build:
@@ -33,7 +38,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: "no"
 
 networks:

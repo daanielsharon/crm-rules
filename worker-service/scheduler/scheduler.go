@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"worker-service/models"
@@ -56,7 +57,8 @@ func (s *Scheduler) refreshRules() {
 func (s *Scheduler) getNewRules(latestRules []models.Rule) []models.Rule {
 	var newRules []models.Rule
 	for _, rule := range latestRules {
-		if _, exists := s.Rules[rule.ID]; !exists {
+		ruleIDStr := strconv.Itoa(rule.ID)
+		if _, exists := s.Rules[ruleIDStr]; !exists {
 			newRules = append(newRules, rule)
 		}
 	}
@@ -79,14 +81,16 @@ func (s *Scheduler) addRuleToScheduler(rule models.Rule) {
 		return
 	}
 
-	s.Rules[rule.ID] = entryID
+	ruleIDStr := strconv.Itoa(rule.ID)
+	s.Rules[ruleIDStr] = entryID
 	log.Printf("Scheduled new rule: %s", rule.Name)
 }
 
 func (s *Scheduler) removeStaleRules(latestRules []models.Rule) {
 	latestRuleIDs := make(map[string]struct{})
 	for _, rule := range latestRules {
-		latestRuleIDs[rule.ID] = struct{}{}
+		ruleIDStr := strconv.Itoa(rule.ID)
+		latestRuleIDs[ruleIDStr] = struct{}{}
 	}
 
 	for ruleID, entryID := range s.Rules {
@@ -102,6 +106,8 @@ func mapScheduleToCron(schedule string) string {
 	switch schedule {
 	case "every_30_minutes":
 		return "*/30 * * * *"
+	case "every_minute":
+		return "* * * * *"
 	case "hourly":
 		return "0 * * * *"
 	case "daily_at_midnight":
@@ -119,11 +125,18 @@ func mapScheduleToCron(schedule string) string {
 func (s *Scheduler) processRule(rule models.Rule) {
 	log.Printf("Processing rule: %s", rule.Name)
 
-	err := s.Publisher.PublishTask(publisher.NewTask(rule.ID, rule.Name, rule.Condition, rule.Action))
-	if err != nil {
-		log.Printf("Failed to publish task: %v", err)
-		return
-	}
+	for _, action := range rule.Actions {
+		err := s.Publisher.PublishTask(publisher.NewTask(
+			rule.ID,
+			rule.Name,
+			rule.Condition,
+			action.Action,
+		))
+		if err != nil {
+			log.Printf("Failed to publish task for action %s: %v", action.Action, err)
+			continue
+		}
 
-	log.Printf("Successfully sent task to execution service")
+		log.Printf("Successfully sent task for action %s to execution service", action.Action)
+	}
 }

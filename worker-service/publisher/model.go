@@ -1,16 +1,18 @@
 package publisher
 
-import "time"
+import (
+	"time"
+)
 
 type Task struct {
-	RuleID    string   `json:"rule_id"`
-	Name      string   `json:"name"`
-	Action    []string `json:"action"`
-	Condition string   `json:"condition"`
-	Timestamp string   `json:"timestamp"`
+	RuleID    int    `json:"rule_id"`
+	Name      string `json:"name"`
+	Action    string `json:"action"`
+	Condition string `json:"condition"`
+	Timestamp string `json:"timestamp"`
 }
 
-func NewTask(ruleID, name, condition string, action []string) Task {
+func NewTask(ruleID int, name, condition, action string) Task {
 	return Task{
 		RuleID:    ruleID,
 		Name:      name,
