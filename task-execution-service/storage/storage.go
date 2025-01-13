@@ -30,7 +30,7 @@ func (s *PostgresStore) GetMatchingUsers(condition string) (*sql.Rows, error) {
 
 func (s *PostgresStore) LogExecution(ruleID int, userID string, action string, status string) error {
 	query := `
-		INSERT INTO rule_executions (rule_id, user_id, action, status, executed_at)
+		INSERT INTO execution_logs (rule_id, user_id, action, status, executed_at)
 		VALUES ($1, $2, $3, $4, NOW())
 	`
 	_, err := s.db.Exec(query, ruleID, userID, action, status)

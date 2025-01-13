@@ -1,13 +1,15 @@
 package handlers
 
 import (
+	"gateway/config"
 	"gateway/utils"
 	"io"
 	"net/http"
 )
 
 func FetchLogsHandler(w http.ResponseWriter, r *http.Request) {
-	response, err := utils.ForwardRequest("http://localhost:8082/logs", http.MethodGet, nil)
+	serviceURLs := config.NewServiceURLs()
+	response, err := utils.ForwardRequest(serviceURLs.RulesServiceURL, http.MethodGet, nil)
 	if err != nil {
 		http.Error(w, "Failed to fetch logs: "+err.Error(), http.StatusInternalServerError)
 		return
