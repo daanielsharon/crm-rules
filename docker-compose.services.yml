@@ -14,6 +14,9 @@ services:
       REDIS_CHANNEL: ${REDIS_CHANNEL}
     networks:
       - app-network
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
 
   rules-service:
@@ -29,6 +32,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
 
   task-execution-service:
@@ -45,6 +51,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
   
   user-service:
@@ -60,8 +69,28 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always
-
+  
+  log-service:
+    build:
+      context: ./log-service
+      dockerfile: Dockerfile
+    container_name: log-service
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always 
 
   gateway-service:
     build:
@@ -73,8 +102,13 @@ services:
       RULES_SERVICE_PORT: 8081
       USER_SERVICE_HOST: user-service
       USER_SERVICE_PORT: 8082
+      LOG_SERVICE_HOST: log-service
+      LOG_SERVICE_PORT: 8083
     networks:
       - app-network
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     restart: always

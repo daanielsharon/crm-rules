@@ -17,7 +17,7 @@ func (h *RuleHandler) GetAllRulesHandler(w http.ResponseWriter, r *http.Request)
 	utils.JSONResponse(w, rules, http.StatusOK)
 }
 
-func (h *RuleHandler) GetRuleHandler(w http.ResponseWriter, r *http.Request) {
+func (h *RuleHandler) GetRuleById(w http.ResponseWriter, r *http.Request) {
 	ruleID := chi.URLParam(r, "id")
 	if ruleID == "" {
 		utils.ErrorResponse(w, "Rule ID is required", http.StatusBadRequest)

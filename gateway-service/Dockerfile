@@ -15,6 +15,6 @@ WORKDIR /root/
 
 COPY --from=builder /app/gateway-service .
 
-EXPOSE 8081
+EXPOSE 8080
 
 CMD ["./gateway-service"]
