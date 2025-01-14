@@ -3,16 +3,21 @@ package consumer
 import (
 	"fmt"
 	"log"
+	"task-execution-service/publisher"
 	"task-execution-service/storage"
 	"task-execution-service/types"
 )
 
 type TaskProcessor struct {
-	storage storage.Store
+	storage   storage.Store
+	publisher publisher.Publisher
 }
 
-func NewTaskProcessor(storage storage.Store) *TaskProcessor {
-	return &TaskProcessor{storage: storage}
+func NewTaskProcessor(storage storage.Store, publisher publisher.Publisher) *TaskProcessor {
+	return &TaskProcessor{
+		storage:   storage,
+		publisher: publisher,
+	}
 }
 
 func (tp *TaskProcessor) ProcessTask(task types.Task) error {

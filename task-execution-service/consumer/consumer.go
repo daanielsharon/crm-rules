@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"task-execution-service/publisher"
 	"task-execution-service/types"
 
 	"github.com/redis/go-redis/v9"
@@ -18,14 +17,12 @@ type Processor interface {
 type Consumer struct {
 	client    *redis.Client
 	processor Processor
-	publisher publisher.Publisher
 }
 
-func New(client *redis.Client, processor Processor, publisher publisher.Publisher) *Consumer {
+func New(client *redis.Client, processor Processor) *Consumer {
 	return &Consumer{
 		client:    client,
 		processor: processor,
-		publisher: publisher,
 	}
 }
 

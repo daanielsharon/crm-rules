@@ -37,9 +37,9 @@ func main() {
 	defer postgres.Close()
 
 	store := storage.New(postgres)
-	processor := consumer.NewTaskProcessor(store)
-	publisher := publisher.NewPublisher(redis, "logs")
-	consumer := consumer.New(redis, processor, *publisher)
+	publisher := publisher.NewPublisher(redis)
+	processor := consumer.NewTaskProcessor(store, *publisher)
+	consumer := consumer.New(redis, processor)
 
 	if err := runService(ctx, consumer); err != nil {
 		log.Fatalf("Service error: %v", err)
