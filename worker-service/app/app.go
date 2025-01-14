@@ -31,7 +31,7 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to initialize redis: %v", err)
 	}
 
-	taskPublisher := publisher.NewPublisher(rdb, cfg.Redis.Channel)
+	taskPublisher := publisher.NewPublisher(rdb, "tasks")
 	store := storage.NewStorage(db)
 	scheduler := scheduler.NewScheduler(store, taskPublisher)
 

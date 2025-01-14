@@ -30,8 +30,7 @@ func Load() (*Config, error) {
 			DBName:   os.Getenv("POSTGRES_DB"),
 		},
 		Redis: RedisConfig{
-			Addr:    os.Getenv("REDIS_ADDR"),
-			Channel: os.Getenv("REDIS_CHANNEL"),
+			Addr: os.Getenv("REDIS_ADDR"),
 		},
 	}, nil
 }
