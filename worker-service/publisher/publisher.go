@@ -12,13 +12,11 @@ var ctx = context.Background()
 
 type Publisher struct {
 	RedisClient *redis.Client
-	Channel     string
 }
 
-func NewPublisher(redisClient *redis.Client, channel string) *Publisher {
+func NewPublisher(redisClient *redis.Client) *Publisher {
 	return &Publisher{
 		RedisClient: redisClient,
-		Channel:     channel,
 	}
 }
 
@@ -28,11 +26,11 @@ func (p *Publisher) PublishTask(task Task) error {
 		return err
 	}
 
-	err = p.RedisClient.Publish(ctx, p.Channel, taskJSON).Err()
+	err = p.RedisClient.Publish(ctx, "tasks", taskJSON).Err()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Task published to channel %s: %+v\n", p.Channel, task)
+	log.Printf("Task published to channel %s: %+v\n", "tasks", task)
 	return nil
 }
