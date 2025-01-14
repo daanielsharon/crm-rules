@@ -21,6 +21,16 @@ func InitializeRoutes() *chi.Mux {
 		r.Put("/{id}", handlers.UpdateRuleHandler) // PUT /rules/:id
 	})
 
+	router.Route("/users", func(r chi.Router) {
+		r.Post("/", handlers.CreateUserHandler) // POST /users
+		r.Get("/", handlers.GetAllUsersHandler) // GET /users
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.GetUserHandler)       // GET /users/:id
+			r.Put("/", handlers.UpdateUserHandler)    // PUT /users/:id
+			r.Delete("/", handlers.DeleteUserHandler) // DELETE /users/:id
+		})
+	})
+
 	router.Get("/logs", handlers.FetchLogsHandler) // GET /logs
 
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
