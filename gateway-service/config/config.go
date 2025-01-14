@@ -6,9 +6,9 @@ import (
 )
 
 type ServiceURLs struct {
-	RulesServiceURL         string
-	TaskExecutionServiceURL string
-	UserServiceURL          string
+	RulesServiceURL string
+	UserServiceURL  string
+	LogServiceURL   string
 }
 
 func NewServiceURLs() *ServiceURLs {
@@ -19,5 +19,8 @@ func NewServiceURLs() *ServiceURLs {
 		UserServiceURL: fmt.Sprintf("http://%s:%s/users/",
 			os.Getenv("USER_SERVICE_HOST"),
 			os.Getenv("USER_SERVICE_PORT")),
+		LogServiceURL: fmt.Sprintf("http://%s:%s/logs/",
+			os.Getenv("LOG_SERVICE_HOST"),
+			os.Getenv("LOG_SERVICE_PORT")),
 	}
 }

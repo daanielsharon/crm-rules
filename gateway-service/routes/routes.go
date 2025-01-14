@@ -17,8 +17,11 @@ func InitializeRoutes() *chi.Mux {
 	router.Use(localMiddleware.RateLimiter())
 
 	router.Route("/rules", func(r chi.Router) {
-		r.Post("/", handlers.CreateRuleHandler)    // POST /rules
-		r.Put("/{id}", handlers.UpdateRuleHandler) // PUT /rules/:id
+		r.Post("/", handlers.CreateRuleHandler)       // POST /rules
+		r.Put("/{id}", handlers.UpdateRuleHandler)    // PUT /rules/:id
+		r.Get("/{id}", handlers.GetRuleHandler)       // GET /rules/:id
+		r.Get("/", handlers.GetRulesHandler)          // GET /rules
+		r.Delete("/{id}", handlers.DeleteRuleHandler) // DELETE /rules/:id
 	})
 
 	router.Route("/users", func(r chi.Router) {
@@ -31,8 +34,7 @@ func InitializeRoutes() *chi.Mux {
 		})
 	})
 
-	router.Get("/logs", handlers.FetchLogsHandler) // GET /logs
-
+	router.Get("/logs", handlers.GetLogsHandler) // GET /logs
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Gateway is healthy!"))
 	})
