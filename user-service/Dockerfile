@@ -1,4 +1,4 @@
-FROM golang:1.23 as builder
+FROM golang:1.23 AS builder
 
 WORKDIR /app
 
@@ -7,11 +7,12 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o user-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -o user-service .
 
 FROM alpine:latest
 
-WORKDIR /app
+WORKDIR /root/
+
 COPY --from=builder /app/user-service .
 
-CMD ["/app/user-service"]
+CMD ["./user-service"]

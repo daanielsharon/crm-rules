@@ -4,19 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-
-	"worker-service/config"
-	"worker-service/publisher"
-	"worker-service/scheduler"
-	"worker-service/storage"
+	"log-worker/config"
 
 	"github.com/redis/go-redis/v9"
 )
 
 type App struct {
-	db        *sql.DB
-	redis     *redis.Client
-	scheduler *scheduler.Scheduler
+	Db    *sql.DB
+	Redis *redis.Client
 }
 
 func New(cfg *config.Config) (*App, error) {
@@ -31,14 +26,9 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to initialize redis: %v", err)
 	}
 
-	taskPublisher := publisher.NewPublisher(rdb)
-	store := storage.NewStorage(db)
-	scheduler := scheduler.NewScheduler(store, taskPublisher)
-
 	return &App{
-		db:        db,
-		redis:     rdb,
-		scheduler: scheduler,
+		Db:    db,
+		Redis: rdb,
 	}, nil
 }
 
@@ -61,15 +51,11 @@ func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 	return rdb, nil
 }
 
-func (a *App) Start() {
-	a.scheduler.Start()
-}
-
 func (a *App) Cleanup() {
-	if a.db != nil {
-		a.db.Close()
+	if a.Db != nil {
+		a.Db.Close()
 	}
-	if a.redis != nil {
-		a.redis.Close()
+	if a.Redis != nil {
+		a.Redis.Close()
 	}
 }

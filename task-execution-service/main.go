@@ -10,6 +10,7 @@ import (
 	"task-execution-service/config"
 	"task-execution-service/consumer"
 	"task-execution-service/db"
+	"task-execution-service/publisher"
 	"task-execution-service/storage"
 )
 
@@ -36,8 +37,9 @@ func main() {
 	defer postgres.Close()
 
 	store := storage.New(postgres)
-	processor := consumer.NewTaskProcessor(store)
-	consumer := consumer.New(redis, cfg.Redis.Channel, processor)
+	publisher := publisher.NewPublisher(redis)
+	processor := consumer.NewTaskProcessor(store, *publisher)
+	consumer := consumer.New(redis, processor)
 
 	if err := runService(ctx, consumer); err != nil {
 		log.Fatalf("Service error: %v", err)

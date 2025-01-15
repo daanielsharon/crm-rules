@@ -16,23 +16,21 @@ type Processor interface {
 
 type Consumer struct {
 	client    *redis.Client
-	channel   string
 	processor Processor
 }
 
-func New(client *redis.Client, channel string, processor Processor) *Consumer {
+func New(client *redis.Client, processor Processor) *Consumer {
 	return &Consumer{
 		client:    client,
-		channel:   channel,
 		processor: processor,
 	}
 }
 
 func (c *Consumer) Start(ctx context.Context) error {
-	sub := c.client.Subscribe(ctx, c.channel)
+	sub := c.client.Subscribe(ctx, "tasks")
 	defer sub.Close()
 
-	log.Printf("Subscribed to Redis channel: %s", c.channel)
+	log.Printf("Subscribed to Redis channel: %s", "tasks")
 
 	for {
 		select {
