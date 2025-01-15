@@ -13,9 +13,6 @@ services:
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
 
   log-worker:
@@ -32,9 +29,6 @@ services:
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
 
   rules-service:
@@ -50,9 +44,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
 
   task-execution-service:
@@ -69,9 +60,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
   
   user-service:
@@ -87,9 +75,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always
   
   log-service:
@@ -105,9 +90,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     restart: always 
 
   gateway-service:
@@ -124,9 +106,6 @@ services:
       LOG_SERVICE_PORT: 8083
     networks:
       - app-network
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - "8080:8080"
     restart: always

@@ -16,4 +16,4 @@ WORKDIR /root/
 
 COPY --from=builder /app/log-service .
 
-CMD ["/app/log-service"]
+CMD ["./log-service"]

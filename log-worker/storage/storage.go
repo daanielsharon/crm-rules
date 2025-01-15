@@ -15,9 +15,9 @@ func NewStorage(db *sql.DB) LogStorageInterface {
 
 func (s *Storage) CreateLog(log models.Log) error {
 	query := `
-		INSERT INTO execution_logs (rule_id, user_id, action, status, executed_at)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO execution_logs (rule_id, user_id, action, status)
+		VALUES ($1, $2, $3, $4)
 	`
-	_, err := s.DB.Exec(query, log.RuleID, log.UserID, log.Action, log.Status, log.ExecutedAt)
+	_, err := s.DB.Exec(query, log.RuleID, log.UserID, log.Action, log.Status)
 	return err
 }

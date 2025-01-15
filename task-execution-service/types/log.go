@@ -8,12 +8,11 @@ type Log struct {
 	ExecutedAt string `json:"executed_at"`
 }
 
-func NewLog(ruleID int, userID, action, status, executedAt string) Log {
+func NewLog(ruleID int, userID, action, status string) Log {
 	return Log{
-		RuleID:     ruleID,
-		UserID:     userID,
-		Action:     action,
-		Status:     status,
-		ExecutedAt: executedAt,
+		RuleID: ruleID,
+		UserID: userID,
+		Action: action,
+		Status: status,
 	}
 }

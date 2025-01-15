@@ -25,11 +25,6 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("REDIS_ADDR environment variable is required")
 	}
 
-	redisChannel := os.Getenv("REDIS_CHANNEL")
-	if redisChannel == "" {
-		return nil, fmt.Errorf("REDIS_CHANNEL environment variable is required")
-	}
-
 	host := os.Getenv("POSTGRES_HOST")
 	port := os.Getenv("POSTGRES_PORT")
 	user := os.Getenv("POSTGRES_USER")
@@ -40,8 +35,7 @@ func Load() (*Config, error) {
 
 	return &Config{
 		Redis: RedisConfig{
-			Addr:    redisAddr,
-			Channel: redisChannel,
+			Addr: redisAddr,
 		},
 		Postgres: PostgresConfig{
 			URL: dbURL,

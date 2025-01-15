@@ -27,6 +27,8 @@ func StartConsumer(redisClient *redis.Client, store storage.LogStorageInterface)
 			continue
 		}
 
+		log.Printf("Processing log: %+v", logEntry)
+
 		if err := store.CreateLog(logEntry); err != nil {
 			log.Printf("Error saving log to database: %v", err)
 		}

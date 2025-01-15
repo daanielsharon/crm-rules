@@ -49,9 +49,15 @@ func (tp *TaskProcessor) ProcessTask(task types.Task) error {
 func (tp *TaskProcessor) processUserActions(task types.Task, user storage.User) error {
 	status := tp.executeAction(user, task.Action)
 
-	if err := tp.storage.LogExecution(task.RuleID, user.ID, task.Action, status); err != nil {
+	message := types.NewLog(task.RuleID, user.ID, task.Action, status)
+	err := tp.publisher.PublishLogs(message)
+
+	if err != nil {
 		return fmt.Errorf("log execution: %w", err)
 	}
+
+	log.Printf("Log published to channel %s: %+v\n", "logs", message)
+
 	return nil
 }
 
