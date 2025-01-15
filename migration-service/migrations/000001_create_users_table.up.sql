@@ -4,7 +4,7 @@ CREATE TABLE users (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    last_active TIMESTAMP NOT NULL,
+    last_active TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     plan TEXT DEFAULT 'free',
     failed_logins INTEGER DEFAULT 0,
     email_verified BOOLEAN DEFAULT FALSE,

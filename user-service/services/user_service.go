@@ -31,7 +31,15 @@ func (s *UserService) CreateUser(user models.User) error {
 }
 
 func (s *UserService) GetUserById(id string) (*models.User, error) {
-	return s.Storage.GetUserById(id)
+	user, err := s.Storage.GetUserById(id)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return user, nil
 }
 
 func (s *UserService) UpdateUser(user models.User) error {

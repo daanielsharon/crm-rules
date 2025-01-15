@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"errors"
+	"time"
 	"user-service/models"
 )
 
@@ -15,8 +16,8 @@ func NewStorage(db *sql.DB) StorageInterface {
 }
 
 func (s *Storage) CreateUser(user models.User) error {
-	query := "INSERT INTO users (name, email) VALUES ($1, $2)"
-	_, err := s.DB.Exec(query, user.Name, user.Email)
+	query := "INSERT INTO users (name, email, plan) VALUES ($1, $2, $3)"
+	_, err := s.DB.Exec(query, user.Name, user.Email, user.Plan)
 	return err
 }
 
@@ -32,6 +33,7 @@ func (s *Storage) GetUserById(id string) (*models.User, error) {
 		}
 		return nil, err
 	}
+
 	return &user, nil
 }
 
@@ -73,12 +75,17 @@ func (s *Storage) UpdateUser(user models.User) error {
 	query := `
 		UPDATE users
 		SET name = COALESCE($2, name),
-		    email = COALESCE($3, email)
+		    email = COALESCE($3, email),
+			plan = COALESCE($4, plan)
+			last_active = COALESCE($5, last_active),
+			failed_logins = COALESCE($6, failed_logins),
+			email_verified = COALESCE($7, email_verified),
+			updated_at = COALESCE($8, updated_at)
 		WHERE id = $1
 		RETURNING id
 	`
 	var updatedID string
-	err := s.DB.QueryRow(query, user.ID, user.Name, user.Email).Scan(&updatedID)
+	err := s.DB.QueryRow(query, user.ID, user.Name, user.Email, user.Plan, user.LastActive, user.FailedLogins, user.EmailVerified, time.Now()).Scan(&updatedID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return errors.New("user not found")

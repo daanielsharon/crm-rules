@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"user-service/models"
 	"user-service/services"
+	"user-service/utils"
 )
 
 type UserHandler struct {
@@ -18,12 +19,15 @@ func NewUserHandler(service services.UserServiceInterface) *UserHandler {
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		utils.HandleRequestError(w, &utils.RequestError{
+			Message: "Invalid request body",
+			Status:  http.StatusBadRequest,
+		})
 		return
 	}
 
 	if err := h.Service.CreateUser(user); err != nil {
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		utils.HandleRequestError(w, err)
 		return
 	}
 
@@ -32,19 +36,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		http.Error(w, "Missing user ID", http.StatusBadRequest)
+	id, err := utils.GetIDFromRequest(r)
+	if err != nil {
+		utils.HandleRequestError(w, utils.ErrMissingID)
 		return
 	}
 
 	user, err := h.Service.GetUserById(id)
 	if err != nil {
-		http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
-		return
-	}
-	if user == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+		utils.HandleRequestError(w, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.Service.GetAllUsers()
 	if err != nil {
-		http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
+		utils.HandleRequestError(w, err)
 		return
 	}
 
@@ -62,39 +62,47 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	id, err := utils.GetIDFromRequest(r)
+	if err != nil {
+		utils.HandleRequestError(w, utils.ErrMissingID)
+		return
+	}
+
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		utils.HandleRequestError(w, &utils.RequestError{
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		})
 		return
 	}
 
-	if user.ID == "" {
-		http.Error(w, "Missing user ID", http.StatusBadRequest)
-		return
-	}
-
+	user.ID = id
 	if err := h.Service.UpdateUser(user); err != nil {
-		if err.Error() == "user not found" {
-			http.Error(w, "User not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		utils.HandleRequestError(w, &utils.RequestError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User updated successfully"})
+	user.ID = ""
+	json.NewEncoder(w).Encode(user)
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	if id == "" {
-		http.Error(w, "Missing user ID", http.StatusBadRequest)
+	id, err := utils.GetIDFromRequest(r)
+	if err != nil {
+		utils.HandleRequestError(w, utils.ErrMissingID)
 		return
 	}
 
 	if err := h.Service.DeleteUser(id); err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		utils.HandleRequestError(w, &utils.RequestError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		})
 		return
 	}
 
