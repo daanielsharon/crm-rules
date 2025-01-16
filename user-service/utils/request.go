@@ -11,6 +11,10 @@ var (
 		Message: "Missing user ID",
 		Status:  http.StatusBadRequest,
 	}
+	ErrUserNotFound = &RequestError{
+		Message: "User not found",
+		Status:  http.StatusNotFound,
+	}
 )
 
 type RequestError struct {

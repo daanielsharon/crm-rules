@@ -7,6 +7,6 @@ CREATE TABLE execution_logs (
     action TEXT NOT NULL,
     status TEXT NOT NULL CHECK (status IN ('success', 'failure', 'pending', 'skipped')),
     executed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (rule_id) REFERENCES rules(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (rule_id) REFERENCES rules(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

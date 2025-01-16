@@ -76,7 +76,7 @@ func (s *Storage) UpdateUser(user models.User) error {
 		UPDATE users
 		SET name = COALESCE($2, name),
 		    email = COALESCE($3, email),
-			plan = COALESCE($4, plan)
+			plan = COALESCE($4, plan),
 			last_active = COALESCE($5, last_active),
 			failed_logins = COALESCE($6, failed_logins),
 			email_verified = COALESCE($7, email_verified),

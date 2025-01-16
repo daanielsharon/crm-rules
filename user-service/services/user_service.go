@@ -43,15 +43,6 @@ func (s *UserService) GetUserById(id string) (*models.User, error) {
 }
 
 func (s *UserService) UpdateUser(user models.User) error {
-	existingUser, err := s.Storage.GetUserById(user.ID)
-	if err != nil {
-		return err
-	}
-
-	if existingUser == nil {
-		return errors.New("user not found")
-	}
-
 	return s.Storage.UpdateUser(user)
 }
 

@@ -44,7 +44,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Service.GetUserById(id)
 	if err != nil {
-		utils.HandleRequestError(w, err)
+		utils.HandleRequestError(w, utils.ErrUserNotFound)
 		return
 	}
 
@@ -68,6 +68,12 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err = h.Service.GetUserById(id)
+	if err != nil {
+		utils.HandleRequestError(w, utils.ErrUserNotFound)
+		return
+	}
+
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		utils.HandleRequestError(w, &utils.RequestError{
@@ -86,8 +92,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	user.ID = ""
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -95,6 +101,12 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := utils.GetIDFromRequest(r)
 	if err != nil {
 		utils.HandleRequestError(w, utils.ErrMissingID)
+		return
+	}
+
+	_, err = h.Service.GetUserById(id)
+	if err != nil {
+		utils.HandleRequestError(w, utils.ErrUserNotFound)
 		return
 	}
 
@@ -106,5 +118,8 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"user_id": id,
+	})
 }

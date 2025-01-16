@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -15,14 +14,15 @@ type StandardResponse struct {
 }
 
 func SendResponse(w http.ResponseWriter, response *http.Response) []byte {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		http.Error(w, "Error reading response body", http.StatusInternalServerError)
 		return nil
 	}
 
-	// Try to parse as JSON first
 	var jsonData interface{}
 	jsonErr := json.Unmarshal(body, &jsonData)
 
@@ -31,7 +31,6 @@ func SendResponse(w http.ResponseWriter, response *http.Response) []byte {
 	}
 
 	if jsonErr != nil {
-		fmt.Println("what's the body result", string(body))
 		standardResp.Message = strings.TrimSpace(string(body))
 		standardResp.Data = map[string]interface{}{}
 	} else {
