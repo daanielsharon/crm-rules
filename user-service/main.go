@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"user-service/db"
+	"shared/db"
 	"user-service/handlers"
 	"user-service/services"
 	"user-service/storage"

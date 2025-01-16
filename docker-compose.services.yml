@@ -64,8 +64,8 @@ services:
   
   user-service:
     build:
-      context: ./user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: user-service/Dockerfile
     container_name: user-service
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
