@@ -3,7 +3,7 @@ package storage
 import (
 	"database/sql"
 	"errors"
-	"rules/models"
+	"rules-service/models"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type RuleStorage struct {
 	DB *sql.DB
 }
 
-func NewStorage(db *sql.DB) RuleStorageInterface {
+func NewRuleStorage(db *sql.DB) RuleStorageInterface {
 	return &RuleStorage{DB: db}
 }
 

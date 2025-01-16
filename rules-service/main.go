@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"rules/db"
-	"rules/handlers"
-	"rules/services"
-	"rules/storage"
+	"rules-service/db"
+	"rules-service/handlers"
+	"rules-service/services"
+	"rules-service/storage"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -17,9 +17,13 @@ func main() {
 	database := db.InitPostgres()
 	defer database.Close()
 
-	storageService := storage.NewStorage(database)
-	ruleService := services.NewRuleService(storageService)
+	ruleStorage := storage.NewRuleStorage(database)
+	ruleService := services.NewRuleService(ruleStorage)
 	handler := handlers.NewRuleHandler(ruleService)
+
+	actionStorage := storage.NewActionStorage(database)
+	actionService := services.NewActionService(actionStorage)
+	actionHandler := handlers.NewActionHandler(actionService)
 
 	r := chi.NewRouter()
 
@@ -34,6 +38,10 @@ func main() {
 			r.Put("/", handler.UpdateRuleHandler)
 			r.Delete("/", handler.DeleteRuleHandler)
 		})
+	})
+
+	r.Route("/actions", func(r chi.Router) {
+		r.Post("/", actionHandler.CreateActionHandler)
 	})
 
 	log.Println("Rule service is running on port 8081")

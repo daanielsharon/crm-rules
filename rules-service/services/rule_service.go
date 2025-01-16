@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"rules/models"
-	"rules/storage"
+	"rules-service/models"
+	"rules-service/storage"
 	"time"
 )
 

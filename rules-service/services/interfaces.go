@@ -1,6 +1,6 @@
 package services
 
-import "rules/models"
+import "rules-service/models"
 
 type RuleServiceInterface interface {
 	CreateRule(rule *models.Rule) error
@@ -8,4 +8,8 @@ type RuleServiceInterface interface {
 	GetRule(id string) (*models.Rule, error)
 	UpdateRule(rule *models.Rule) error
 	DeleteRule(id string) error
+}
+
+type ActionServiceInterface interface {
+	CreateAction(rule *models.Action) error
 }
