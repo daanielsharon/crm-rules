@@ -1,14 +1,20 @@
-FROM golang:1.23-alpine
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod tidy
+RUN go mod download
 
 COPY . .
 
-COPY ./migrations /app/migrations
+RUN CGO_ENABLED=0 GOOS=linux go build -o migration-service main.go
 
-RUN go build -o migration-service main.go
+FROM alpine:3.18
 
-ENTRYPOINT ["/app/migration-service"]
+WORKDIR /app
+
+COPY --from=builder /app/migration-service .
+COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/seeds ./seeds
+
+ENTRYPOINT ["./migration-service"]

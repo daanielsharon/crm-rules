@@ -8,7 +8,8 @@ import (
 	"log-service/storage"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
@@ -18,8 +19,14 @@ func main() {
 	handler := handlers.NewLogHandler(service)
 
 	r := chi.NewRouter()
-	r.Get("/logs", handler.GetLogs)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	r.Route("/logs", func(r chi.Router) {
+		r.Get("/", handler.GetLogs)        // GET /logs
+		r.Get("/{id}", handler.GetLogByID) // GET /logs/:id
+	})
 
 	log.Println("Log service running on port 8083")
-	log.Fatal(http.ListenAndServe(":8083", nil))
+	log.Fatal(http.ListenAndServe(":8083", r))
 }

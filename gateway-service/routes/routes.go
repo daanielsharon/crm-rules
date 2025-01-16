@@ -34,7 +34,11 @@ func InitializeRoutes() *chi.Mux {
 		})
 	})
 
-	router.Get("/logs", handlers.GetLogsHandler) // GET /logs
+	router.Route("/logs", func(r chi.Router) {
+		r.Get("/", handlers.GetLogsHandler)        // GET /logs
+		r.Get("/{id}", handlers.GetLogByIDHandler) // GET /logs/:id
+	})
+
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Gateway is healthy!"))
 	})

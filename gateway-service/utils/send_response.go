@@ -34,13 +34,39 @@ func SendResponse(w http.ResponseWriter, response *http.Response) []byte {
 		standardResp.Message = strings.TrimSpace(string(body))
 		standardResp.Data = map[string]interface{}{}
 	} else {
-		standardResp.Message = "Success"
+		if response.StatusCode == http.StatusOK {
+			standardResp.Message = "success"
+		} else {
+			standardResp.Message = "error"
+		}
+
 		standardResp.Data = jsonData
 	}
 
 	data, err := json.Marshal(standardResp)
 	if err != nil {
 		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
+		return nil
+	}
+
+	return data
+}
+
+func ErrorResponse(w http.ResponseWriter, message string, statusCode int) []byte {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	errorResp := &StandardResponse{
+		Code:    statusCode,
+		Message: "gateway error",
+		Data: map[string]interface{}{
+			"error": message,
+		},
+	}
+
+	data, err := json.Marshal(errorResp)
+	if err != nil {
+		http.Error(w, "Failed to marshal error response", http.StatusInternalServerError)
 		return nil
 	}
 

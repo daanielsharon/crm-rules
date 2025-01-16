@@ -16,8 +16,8 @@ func NewRuleService(storage storage.RuleStorageInterface) *RuleService {
 }
 
 func (s *RuleService) CreateRule(rule *models.Rule) error {
-	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
-		return errors.New("all fields (name, condition, action) are required")
+	if rule.Name == "" || rule.Condition == "" || rule.Schedule == "" {
+		return errors.New("all fields (name, condition, schedule) are required")
 	}
 
 	rule.CreatedAt = time.Now()
@@ -34,8 +34,8 @@ func (s *RuleService) GetRule(id string) (*models.Rule, error) {
 }
 
 func (s *RuleService) UpdateRule(rule *models.Rule) error {
-	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
-		return errors.New("all fields (name, condition, action) are required")
+	if rule.Name == "" || rule.Condition == "" || rule.Schedule == "" {
+		return errors.New("all fields (name, condition, schedule) are required")
 	}
 
 	rule.UpdatedAt = time.Now()

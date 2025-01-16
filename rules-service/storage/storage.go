@@ -17,15 +17,15 @@ func NewStorage(db *sql.DB) RuleStorageInterface {
 
 func (s *RuleStorage) CreateRule(rule models.Rule) error {
 	query := `
-	INSERT INTO rules (name, condition, action)
+	INSERT INTO rules (name, condition, schedule)
 	VALUES ($1, $2, $3)
 	RETURNING id, created_at, updated_at
 	`
-	return s.DB.QueryRow(query, rule.Name, rule.Condition, rule.Action).Scan(&rule.ID, &rule.CreatedAt, &rule.UpdatedAt)
+	return s.DB.QueryRow(query, rule.Name, rule.Condition, rule.Schedule).Scan(&rule.ID, &rule.CreatedAt, &rule.UpdatedAt)
 }
 
 func (s *RuleStorage) GetAllRules() ([]models.Rule, error) {
-	query := `SELECT id, name, condition, action, created_at, updated_at FROM rules`
+	query := `SELECT id, name, condition, schedule, created_at, updated_at FROM rules`
 	rows, err := s.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (s *RuleStorage) GetAllRules() ([]models.Rule, error) {
 	var rules []models.Rule
 	for rows.Next() {
 		var rule models.Rule
-		err := rows.Scan(&rule.ID, &rule.Name, &rule.Condition, &rule.Action, &rule.CreatedAt, &rule.UpdatedAt)
+		err := rows.Scan(&rule.ID, &rule.Name, &rule.Condition, &rule.Schedule, &rule.CreatedAt, &rule.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -45,11 +45,11 @@ func (s *RuleStorage) GetAllRules() ([]models.Rule, error) {
 }
 
 func (s *RuleStorage) GetRule(id string) (*models.Rule, error) {
-	query := `SELECT id, name, condition, action, created_at, updated_at FROM rules WHERE id = $1`
+	query := `SELECT id, name, condition, schedule, created_at, updated_at FROM rules WHERE id = $1`
 	row := s.DB.QueryRow(query, id)
 
 	var rule models.Rule
-	err := row.Scan(&rule.ID, &rule.Name, &rule.Condition, &rule.Action, &rule.CreatedAt, &rule.UpdatedAt)
+	err := row.Scan(&rule.ID, &rule.Name, &rule.Condition, &rule.Schedule, &rule.CreatedAt, &rule.UpdatedAt)
 	if err == sql.ErrNoRows {
 		return nil, errors.New("rule not found")
 	} else if err != nil {
@@ -61,10 +61,10 @@ func (s *RuleStorage) GetRule(id string) (*models.Rule, error) {
 func (s *RuleStorage) UpdateRule(rule models.Rule) error {
 	query := `
 	UPDATE rules
-	SET name = $2, condition = $3, action = $4, updated_at = $5
+	SET name = $2, condition = $3, schedule = $4, updated_at = $5
 	WHERE id = $1
 	`
-	_, err := s.DB.Exec(query, rule.ID, rule.Name, rule.Condition, rule.Action, time.Now())
+	_, err := s.DB.Exec(query, rule.ID, rule.Name, rule.Condition, rule.Schedule, time.Now())
 	return err
 }
 

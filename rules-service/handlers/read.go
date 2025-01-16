@@ -10,7 +10,7 @@ import (
 func (h *RuleHandler) GetAllRulesHandler(w http.ResponseWriter, r *http.Request) {
 	rules, err := h.Service.GetAllRules()
 	if err != nil {
-		utils.ErrorResponse(w, "Failed to fetch rules", http.StatusInternalServerError)
+		utils.ErrorResponse(w, "Failed to fetch rules: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
