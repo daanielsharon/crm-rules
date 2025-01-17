@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"log-service/services"
-	"log-service/utils"
 	"net/http"
+	"shared/helpers"
 
 	"github.com/go-chi/chi"
 )
@@ -22,29 +22,29 @@ func (h *LogHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 
 	logs, err := h.Service.GetLogs(ruleID, userID)
 	if err != nil {
-		utils.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
+		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.JSONResponse(w, logs, http.StatusOK)
+	helpers.JSONResponse(w, logs, http.StatusOK)
 }
 
 func (h *LogHandler) GetLogByID(w http.ResponseWriter, r *http.Request) {
 	logID := chi.URLParam(r, "id")
 	if logID == "" {
-		utils.ErrorResponse(w, "Log ID is required", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "Log ID is required", http.StatusBadRequest)
 		return
 	}
 
 	log, err := h.Service.GetLogByID(logID)
 	if err != nil {
-		utils.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
+		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if log == nil {
-		utils.ErrorResponse(w, "Log not found", http.StatusNotFound)
+		helpers.ErrorResponse(w, "Log not found", http.StatusNotFound)
 		return
 	}
 
-	utils.JSONResponse(w, log, http.StatusOK)
+	helpers.JSONResponse(w, log, http.StatusOK)
 }

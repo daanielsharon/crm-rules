@@ -6,36 +6,20 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"shared/db"
 	"syscall"
-	"task-execution-service/config"
 	"task-execution-service/consumer"
-	"task-execution-service/db"
 	"task-execution-service/publisher"
 	"task-execution-service/storage"
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("Failed to load configuration: %v", err)
-	}
-
 	// Setup context for graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	redis, err := db.NewRedisClient(cfg.Redis)
-	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
-	}
-	defer redis.Close()
-
-	postgres, err := db.NewPostgresClient(cfg.Postgres)
-	if err != nil {
-		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
-	}
-	defer postgres.Close()
-
+	redis := db.InitRedis()
+	postgres := db.InitPostgres()
 	store := storage.New(postgres)
 	publisher := publisher.NewPublisher(redis)
 	processor := consumer.NewTaskProcessor(store, *publisher)

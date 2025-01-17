@@ -1,19 +1,16 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.23 AS builder
 
-WORKDIR /app
-
-COPY go.mod go.sum ./
-
+WORKDIR /app/shared
+COPY shared .
 RUN go mod download
 
-COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o rules-service
+WORKDIR /app/rules-service
+COPY rules-service .
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:latest
-
 WORKDIR /root/
-
 COPY --from=builder /app/rules-service .
 
-CMD ["./rules-service"]
+CMD ["./main"]

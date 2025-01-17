@@ -3,20 +3,17 @@ package main
 import (
 	"log"
 	"net/http"
-	"rules-service/db"
 	"rules-service/handlers"
 	"rules-service/services"
 	"rules-service/storage"
+	"shared/db"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
-	// Database connection
 	database := db.InitPostgres()
-	defer database.Close()
-
 	ruleStorage := storage.NewRuleStorage(database)
 	ruleService := services.NewRuleService(ruleStorage)
 	handler := handlers.NewRuleHandler(ruleService)

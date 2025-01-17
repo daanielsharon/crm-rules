@@ -6,6 +6,7 @@ import (
 	"log"
 	"log-worker/models"
 	"log-worker/storage"
+	"shared/helpers"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -29,8 +30,7 @@ func StartConsumer(redisClient *redis.Client, store storage.LogStorageInterface)
 
 		log.Printf("Processing log: %+v", logEntry)
 
-		if err := store.CreateLog(logEntry); err != nil {
-			log.Printf("Error saving log to database: %v", err)
-		}
+		err = store.CreateLog(logEntry)
+		helpers.PanicIfError(err)
 	}
 }

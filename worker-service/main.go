@@ -2,24 +2,16 @@ package main
 
 import (
 	"log"
+	"shared/helpers"
 
 	"worker-service/app"
-	"worker-service/config"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
-
-	application, err := app.New(cfg)
-	if err != nil {
-		log.Fatalf("Failed to initialize application: %v", err)
-	}
-	defer application.Cleanup()
+	application, err := app.New()
+	helpers.PanicIfError(err)
 
 	log.Println("Starting worker service...")
 	application.Start()

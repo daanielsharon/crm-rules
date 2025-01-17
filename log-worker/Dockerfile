@@ -1,18 +1,16 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.23 AS builder
 
-WORKDIR /app
-
-COPY go.mod go.sum ./
+WORKDIR /app/shared
+COPY shared .
 RUN go mod download
 
-COPY . .
+WORKDIR /app/log-worker
+COPY log-worker .
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o log-worker .
-
-FROM alpine:3.18
-
-WORKDIR /app
-
+FROM alpine:latest
+WORKDIR /root/
 COPY --from=builder /app/log-worker .
 
-CMD ["./log-worker"]
+CMD ["./main"]

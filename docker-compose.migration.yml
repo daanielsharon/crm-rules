@@ -26,8 +26,8 @@ services:
 
   migration:
     build:
-      context: ./migration-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: migration-service/Dockerfile
     container_name: migration
     environment:
       POSTGRES_HOST: db

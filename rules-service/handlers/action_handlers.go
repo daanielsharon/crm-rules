@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"rules-service/models"
 	"rules-service/services"
-	"rules-service/utils"
+	"shared/helpers"
 )
 
 type ActionHandler struct {
@@ -20,14 +20,14 @@ func (h *ActionHandler) CreateActionHandler(w http.ResponseWriter, r *http.Reque
 	var action models.Action
 
 	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
-		utils.ErrorResponse(w, "Invalid request body", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := h.Service.CreateAction(&action); err != nil {
-		utils.ErrorResponse(w, err.Error(), http.StatusBadRequest)
+		helpers.ErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	utils.JSONResponse(w, action, http.StatusCreated)
+	helpers.JSONResponse(w, action, http.StatusCreated)
 }

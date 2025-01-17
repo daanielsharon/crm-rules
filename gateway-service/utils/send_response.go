@@ -34,7 +34,7 @@ func SendResponse(w http.ResponseWriter, response *http.Response) []byte {
 		standardResp.Message = strings.TrimSpace(string(body))
 		standardResp.Data = map[string]interface{}{}
 	} else {
-		if response.StatusCode == http.StatusOK {
+		if response.StatusCode >= 200 && response.StatusCode < 300 {
 			standardResp.Message = "success"
 		} else {
 			standardResp.Message = "error"

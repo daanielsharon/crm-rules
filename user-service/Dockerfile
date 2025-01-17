@@ -7,7 +7,6 @@ RUN go mod download
 WORKDIR /app/user-service
 COPY user-service .
 RUN go mod download
-
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 FROM alpine:latest

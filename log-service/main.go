@@ -2,15 +2,15 @@ package main
 
 import (
 	"log"
-	"log-service/db"
 	"log-service/handlers"
 	"log-service/services"
 	"log-service/storage"
 	"net/http"
 
+	"shared/db"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 func main() {
