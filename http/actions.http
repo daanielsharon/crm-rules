@@ -1,0 +1,25 @@
+### GET
+GET http://localhost:8080/actions
+
+### GET by id
+GET http://localhost:8080/actions/1
+
+### POST
+POST http://localhost:8080/actions
+Content-Type: application/json
+
+{
+    "rule_id": "1",
+    "action": "hidden actions"
+}
+
+### PUT
+PUT http://localhost:8080/actions/1
+Content-Type: application/json
+
+{
+    "action": "hidden actions"
+}
+
+### DELETE
+DELETE http://localhost:8080/actions/1

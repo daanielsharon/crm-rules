@@ -12,7 +12,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/migration-service .
-# COPY --from=builder /app/migrations ./migrations
-# COPY --from=builder /app/seeds ./seeds
 
 CMD ["./main"]

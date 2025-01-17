@@ -1,2 +1,5 @@
 ### GET logs
 GET http://localhost:8080/logs/
+
+### GET logs by id
+GET http://localhost:8080/logs/c5370710-6fdb-4cc8-94a4-8fc6a92f6407

@@ -24,3 +24,20 @@ func (s *ActionService) CreateAction(action *models.Action) error {
 	action.UpdatedAt = time.Now()
 	return s.Storage.CreateAction(*action)
 }
+
+func (s *ActionService) GetActions() ([]models.Action, error) {
+	return s.Storage.GetActions()
+}
+
+func (s *ActionService) GetActionById(id string) (*models.Action, error) {
+	return s.Storage.GetActionById(id)
+}
+
+func (s *ActionService) UpdateAction(action *models.Action) error {
+	action.UpdatedAt = time.Now()
+	return s.Storage.UpdateAction(*action)
+}
+
+func (s *ActionService) DeleteAction(id string) error {
+	return s.Storage.DeleteAction(id)
+}

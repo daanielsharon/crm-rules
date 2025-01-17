@@ -25,6 +25,12 @@ func InitializeRoutes(rules *handlers.RuleHandler, actions *handlers.ActionHandl
 
 	r.Route("/actions", func(r chi.Router) {
 		r.Post("/", actions.CreateActionHandler)
+		r.Get("/", actions.GetActionsHandler)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", actions.GetActionById)
+			r.Put("/", actions.UpdateActionHandler)
+			r.Delete("/", actions.DeleteActionHandler)
+		})
 	})
 
 	return r
