@@ -29,14 +29,14 @@ func (h *LogHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 	helpers.JSONResponse(w, logs, http.StatusOK)
 }
 
-func (h *LogHandler) GetLogByID(w http.ResponseWriter, r *http.Request) {
+func (h *LogHandler) GetLogById(w http.ResponseWriter, r *http.Request) {
 	logID := chi.URLParam(r, "id")
 	if logID == "" {
 		helpers.ErrorResponse(w, "Log ID is required", http.StatusBadRequest)
 		return
 	}
 
-	log, err := h.Service.GetLogByID(logID)
+	log, err := h.Service.GetLogById(logID)
 	if err != nil {
 		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return

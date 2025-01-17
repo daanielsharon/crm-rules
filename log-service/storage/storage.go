@@ -49,7 +49,7 @@ func (s *Storage) GetLogs(ruleID, userID string) ([]models.Log, error) {
 	return logs, nil
 }
 
-func (s *Storage) GetLogByID(id string) (*models.Log, error) {
+func (s *Storage) GetLogById(id string) (*models.Log, error) {
 	query := "SELECT id, rule_id, user_id, action, status, created_at FROM execution_logs WHERE id = $1"
 	row := s.DB.QueryRow(query, id)
 

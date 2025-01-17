@@ -51,7 +51,7 @@ func (h *RuleHandler) GetRuleById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rule, err := h.Service.GetRule(ruleID)
+	rule, err := h.Service.GetRuleById(ruleID)
 	if err != nil {
 		helpers.ErrorResponse(w, "Failed to fetch rule", http.StatusInternalServerError)
 		return
@@ -61,8 +61,8 @@ func (h *RuleHandler) GetRuleById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RuleHandler) UpdateRuleHandler(w http.ResponseWriter, r *http.Request) {
-	ruleID := chi.URLParam(r, "id")
-	if ruleID == "" {
+	id := chi.URLParam(r, "id")
+	if id == "" {
 		helpers.ErrorResponse(w, "Rule ID is required", http.StatusBadRequest)
 		return
 	}
@@ -73,7 +73,13 @@ func (h *RuleHandler) UpdateRuleHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	rule.ID = ruleID
+	_, err := h.Service.GetRuleById(id)
+	if err != nil {
+		helpers.ErrorResponse(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	rule.ID = id
 	if err := h.Service.UpdateRule(&rule); err != nil {
 		helpers.ErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return

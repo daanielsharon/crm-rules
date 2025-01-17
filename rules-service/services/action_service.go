@@ -34,7 +34,6 @@ func (s *ActionService) GetActionById(id string) (*models.Action, error) {
 }
 
 func (s *ActionService) UpdateAction(action *models.Action) error {
-	action.UpdatedAt = time.Now()
 	return s.Storage.UpdateAction(*action)
 }
 

@@ -73,6 +73,12 @@ func (h *ActionHandler) UpdateActionHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	_, err := h.Service.GetActionById(id)
+	if err != nil {
+		helpers.ErrorResponse(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
 	action.ID = id
 	if err := h.Service.UpdateAction(&action); err != nil {
 		helpers.ErrorResponse(w, err.Error(), http.StatusBadRequest)

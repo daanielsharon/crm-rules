@@ -29,8 +29,8 @@ func (s *RuleService) GetAllRules() ([]models.Rule, error) {
 	return s.Storage.GetAllRules()
 }
 
-func (s *RuleService) GetRule(id string) (*models.Rule, error) {
-	return s.Storage.GetRule(id)
+func (s *RuleService) GetRuleById(id string) (*models.Rule, error) {
+	return s.Storage.GetRuleById(id)
 }
 
 func (s *RuleService) UpdateRule(rule *models.Rule) error {

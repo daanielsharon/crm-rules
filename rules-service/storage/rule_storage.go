@@ -44,7 +44,7 @@ func (s *RuleStorage) GetAllRules() ([]models.Rule, error) {
 	return rules, nil
 }
 
-func (s *RuleStorage) GetRule(id string) (*models.Rule, error) {
+func (s *RuleStorage) GetRuleById(id string) (*models.Rule, error) {
 	query := `SELECT id, name, condition, schedule, created_at, updated_at FROM rules WHERE id = $1`
 	row := s.DB.QueryRow(query, id)
 
