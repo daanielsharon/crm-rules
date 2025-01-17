@@ -1,7 +1,7 @@
 package models
 
 type Log struct {
-	ID         int    `json:"id"`
+	ID         string `json:"id"`
 	RuleID     int    `json:"rule_id"`
 	UserID     string `json:"user_id"`
 	Action     string `json:"action"`

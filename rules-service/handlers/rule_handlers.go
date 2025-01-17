@@ -84,16 +84,19 @@ func (h *RuleHandler) UpdateRuleHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *RuleHandler) DeleteRuleHandler(w http.ResponseWriter, r *http.Request) {
-	ruleID := chi.URLParam(r, "id")
-	if ruleID == "" {
+	id := chi.URLParam(r, "id")
+	if id == "" {
 		helpers.ErrorResponse(w, "Rule ID is required", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.Service.DeleteRule(ruleID); err != nil {
+	if err := h.Service.DeleteRule(id); err != nil {
 		helpers.ErrorResponse(w, "Failed to delete rule", http.StatusInternalServerError)
 		return
 	}
 
-	helpers.JSONResponse(w, []byte("Rule deleted successfully"), http.StatusOK)
+	helpers.JSONResponse(w, map[string]string{
+		"rule_id": id,
+	}, http.StatusOK)
+
 }

@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Rule struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"id,omitempty"`
 	Name      string    `json:"name"`
 	Condition string    `json:"condition"`
 	Schedule  string    `json:"schedule"`

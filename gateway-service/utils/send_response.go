@@ -37,7 +37,7 @@ func SendResponse(w http.ResponseWriter, response *http.Response) []byte {
 		if response.StatusCode >= 200 && response.StatusCode < 300 {
 			standardResp.Message = "success"
 		} else {
-			standardResp.Message = "error"
+			standardResp.Message = "failed"
 		}
 
 		standardResp.Data = jsonData

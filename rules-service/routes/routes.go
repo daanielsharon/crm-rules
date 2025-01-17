@@ -8,23 +8,24 @@ import (
 )
 
 func InitializeRoutes(rules *handlers.RuleHandler, actions *handlers.ActionHandler) *chi.Mux {
-	router := chi.NewRouter()
+	r := chi.NewRouter()
 
-	router.Use(middleware.Logger)    // Logs requests
-	router.Use(middleware.Recoverer) // Recovers from panics
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	router.Route("/rules", func(r chi.Router) {
-		r.Post("/", rules.CreateRuleHandler)       // POST /rules
-		r.Get("/", rules.GetAllRulesHandler)       // GET /rules
-		r.Get("/{id}", rules.GetRuleById)          // GET /rules/{id}
-		r.Put("/{id}", rules.UpdateRuleHandler)    // PUT /rules/{id}
-		r.Delete("/{id}", rules.DeleteRuleHandler) // DELETE /rules/{id}
-
-		r.Route("/actions", func(r chi.Router) {
-			r.Post("/", actions.CreateActionHandler) // POST /rules/actions
+	r.Route("/rules", func(r chi.Router) {
+		r.Get("/", rules.GetAllRulesHandler)
+		r.Post("/", rules.CreateRuleHandler)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", rules.GetRuleById)
+			r.Put("/", rules.UpdateRuleHandler)
+			r.Delete("/", rules.DeleteRuleHandler)
 		})
-
 	})
 
-	return router
+	r.Route("/actions", func(r chi.Router) {
+		r.Post("/", actions.CreateActionHandler)
+	})
+
+	return r
 }
