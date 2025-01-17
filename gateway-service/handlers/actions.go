@@ -10,7 +10,7 @@ import (
 
 func CreateActionHandler(w http.ResponseWriter, r *http.Request) {
 	serviceURLs := config.NewServiceURLs()
-	response, err := utils.ForwardRequest(serviceURLs.RulesServiceURL, http.MethodPost, r.Body)
+	response, err := utils.ForwardRequest(serviceURLs.ActionsServiceURL, http.MethodPost, r.Body)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to create actions: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -27,10 +27,10 @@ func UpdateActionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serviceURLs := config.NewServiceURLs()
-	url := serviceURLs.RulesServiceURL + actionID
+	url := serviceURLs.ActionsServiceURL + actionID
 	response, err := utils.ForwardRequest(url, http.MethodPut, r.Body)
 	if err != nil {
-		utils.ErrorResponse(w, "Failed to update rule: "+err.Error(), http.StatusInternalServerError)
+		utils.ErrorResponse(w, "Failed to update action: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -39,7 +39,7 @@ func UpdateActionHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetActionsHandler(w http.ResponseWriter, r *http.Request) {
 	serviceURLs := config.NewServiceURLs()
-	response, err := utils.ForwardRequest(serviceURLs.RulesServiceURL, http.MethodGet, nil)
+	response, err := utils.ForwardRequest(serviceURLs.ActionsServiceURL, http.MethodGet, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to fetch actions: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -56,7 +56,7 @@ func GetActionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serviceURLs := config.NewServiceURLs()
-	url := serviceURLs.RulesServiceURL + actionID
+	url := serviceURLs.ActionsServiceURL + actionID
 	response, err := utils.ForwardRequest(url, http.MethodGet, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to fetch action: "+err.Error(), http.StatusInternalServerError)
@@ -74,7 +74,7 @@ func DeleteActionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serviceURLs := config.NewServiceURLs()
-	url := serviceURLs.RulesServiceURL + actionID
+	url := serviceURLs.ActionsServiceURL + actionID
 	response, err := utils.ForwardRequest(url, http.MethodDelete, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to delete action: "+err.Error(), http.StatusInternalServerError)

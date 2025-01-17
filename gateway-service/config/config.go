@@ -6,14 +6,18 @@ import (
 )
 
 type ServiceURLs struct {
-	RulesServiceURL string
-	UserServiceURL  string
-	LogServiceURL   string
+	RulesServiceURL   string
+	ActionsServiceURL string
+	UserServiceURL    string
+	LogServiceURL     string
 }
 
 func NewServiceURLs() *ServiceURLs {
 	return &ServiceURLs{
 		RulesServiceURL: fmt.Sprintf("http://%s:%s/rules/",
+			os.Getenv("RULES_SERVICE_HOST"),
+			os.Getenv("RULES_SERVICE_PORT")),
+		ActionsServiceURL: fmt.Sprintf("http://%s:%s/actions/",
 			os.Getenv("RULES_SERVICE_HOST"),
 			os.Getenv("RULES_SERVICE_PORT")),
 		UserServiceURL: fmt.Sprintf("http://%s:%s/users/",

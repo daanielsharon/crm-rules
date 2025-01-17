@@ -27,7 +27,7 @@ func GetLogByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serviceURLs := config.NewServiceURLs()
-	url := serviceURLs.LogServiceURL + "/" + logID
+	url := serviceURLs.LogServiceURL + logID
 	response, err := utils.ForwardRequest(url, http.MethodGet, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to fetch log: "+err.Error(), http.StatusInternalServerError)
