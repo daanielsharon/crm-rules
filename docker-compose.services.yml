@@ -2,7 +2,7 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: worker-service/Dockerfile
+      dockerfile: scheduler/Dockerfile
     container_name: scheduler
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
