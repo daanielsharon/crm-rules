@@ -10,10 +10,10 @@ import (
 
 type TaskProcessor struct {
 	storage   storage.Storage
-	publisher publisher.Publisher
+	publisher publisher.LogPublisher
 }
 
-func NewTaskProcessor(storage storage.Storage, publisher publisher.Publisher) *TaskProcessor {
+func NewTaskProcessor(storage storage.Storage, publisher publisher.LogPublisher) *TaskProcessor {
 	return &TaskProcessor{
 		storage:   storage,
 		publisher: publisher,

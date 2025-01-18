@@ -11,11 +11,15 @@ import (
 
 var ctx = context.Background()
 
+type LogPublisher interface {
+	PublishLogs(message types.Log) error
+}
+
 type Publisher struct {
 	RedisClient *redis.Client
 }
 
-func NewPublisher(redisClient *redis.Client) *Publisher {
+func NewPublisher(redisClient *redis.Client) LogPublisher {
 	return &Publisher{
 		RedisClient: redisClient,
 	}
