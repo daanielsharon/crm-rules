@@ -46,7 +46,7 @@ services:
       - app-network
     restart: always
 
-  task-execution-service:
+  task-execution-worker:
     build:
       context: .
       dockerfile: task-execution-worker/Dockerfile
