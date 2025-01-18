@@ -11,6 +11,10 @@ start:
 stop:
 	docker compose -f docker-compose.services.yml down
 	docker compose -f docker-compose.migration.yml down
-	rm -f .env
+	@if [ -z "$(KEEP_ENV)" ]; then \
+		rm -f .env; \
+	fi
 
-restart: stop start
+restart: 
+	@$(MAKE) stop KEEP_ENV=true
+	@$(MAKE) start

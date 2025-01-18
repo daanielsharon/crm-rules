@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"rules/models"
-	"rules/storage"
+	"rules-service/models"
+	"rules-service/storage"
 	"time"
 )
 
@@ -16,12 +16,13 @@ func NewRuleService(storage storage.RuleStorageInterface) *RuleService {
 }
 
 func (s *RuleService) CreateRule(rule *models.Rule) error {
-	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
-		return errors.New("all fields (name, condition, action) are required")
+	if rule.Name == "" || rule.Condition == "" || rule.Schedule == "" {
+		return errors.New("all fields (name, condition, schedule) are required")
 	}
 
-	rule.CreatedAt = time.Now()
-	rule.UpdatedAt = time.Now()
+	now := time.Now()
+	rule.CreatedAt = &now
+	rule.UpdatedAt = &now
 	return s.Storage.CreateRule(*rule)
 }
 
@@ -29,16 +30,11 @@ func (s *RuleService) GetAllRules() ([]models.Rule, error) {
 	return s.Storage.GetAllRules()
 }
 
-func (s *RuleService) GetRule(id string) (*models.Rule, error) {
-	return s.Storage.GetRule(id)
+func (s *RuleService) GetRuleById(id string) (*models.Rule, error) {
+	return s.Storage.GetRuleById(id)
 }
 
 func (s *RuleService) UpdateRule(rule *models.Rule) error {
-	if rule.Name == "" || rule.Condition == "" || rule.Action == "" {
-		return errors.New("all fields (name, condition, action) are required")
-	}
-
-	rule.UpdatedAt = time.Now()
 	return s.Storage.UpdateRule(*rule)
 }
 

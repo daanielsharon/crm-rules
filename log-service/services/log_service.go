@@ -22,8 +22,8 @@ func (ls *LogService) GetLogs(ruleID, userID string) ([]models.Log, error) {
 	return logs, nil
 }
 
-func (ls *LogService) GetLogByID(id string) (*models.Log, error) {
-	log, err := ls.Storage.GetLogByID(id)
+func (ls *LogService) GetLogById(id string) (*models.Log, error) {
+	log, err := ls.Storage.GetLogById(id)
 	if err != nil {
 		return nil, err
 	}

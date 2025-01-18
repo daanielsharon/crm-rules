@@ -24,6 +24,14 @@ func InitializeRoutes() *chi.Mux {
 		r.Delete("/{id}", handlers.DeleteRuleHandler) // DELETE /rules/:id
 	})
 
+	router.Route("/actions", func(r chi.Router) {
+		r.Post("/", handlers.CreateActionHandler)       // POST /actions
+		r.Put("/{id}", handlers.UpdateActionHandler)    // PUT /actions/:id
+		r.Get("/{id}", handlers.GetActionHandler)       // GET /actions/:id
+		r.Get("/", handlers.GetActionsHandler)          // GET /actions
+		r.Delete("/{id}", handlers.DeleteActionHandler) // DELETE /actions/:id
+	})
+
 	router.Route("/users", func(r chi.Router) {
 		r.Post("/", handlers.CreateUserHandler) // POST /users
 		r.Get("/", handlers.GetAllUsersHandler) // GET /users
@@ -34,7 +42,13 @@ func InitializeRoutes() *chi.Mux {
 		})
 	})
 
-	router.Get("/logs", handlers.GetLogsHandler) // GET /logs
+	router.Route("/logs", func(r chi.Router) {
+		r.Get("/", handlers.GetLogsHandler) // GET /logs
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.GetLogByIDHandler) // GET /logs/:id
+		})
+	})
+
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Gateway is healthy!"))
 	})

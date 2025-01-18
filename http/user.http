@@ -1,0 +1,29 @@
+### GET users
+GET http://localhost:8080/users
+
+### GET user by id
+GET http://localhost:8080/users/c5370710-6fdb-4cc8-94a4-8fc6a92f6407
+
+### POST user
+POST http://localhost:8080/users
+
+{
+    "name": "Dwi John",
+    "email": "dwi.john@example.com",
+    "plan": "premium"
+}
+
+### PUT user by id
+PUT http://localhost:8080/users/c5370710-6fdb-4cc8-94a4-8fc6a92f6407
+
+{
+    "name": "xx",
+    "email": "x@x.com",
+    "plan": "premium",
+    "last_active": "2023-01-01T00:00:00Z",
+    "failed_logins": 10,
+    "email_verified": false
+}
+
+### DELETE user by id
+DELETE http://localhost:8080/users/c5370710-6fdb-4cc8-94a4-8fc6a92f6407

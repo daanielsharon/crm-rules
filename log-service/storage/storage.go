@@ -16,7 +16,7 @@ func NewStorage(db *sql.DB) StorageInterface {
 }
 
 func (s *Storage) GetLogs(ruleID, userID string) ([]models.Log, error) {
-	query := "SELECT id, rule_id, user_id, action, details, created_at FROM logs WHERE 1=1"
+	query := "SELECT id, rule_id, user_id, action, status, executed_at FROM execution_logs WHERE 1=1"
 	var args []interface{}
 	argCount := 1
 
@@ -49,8 +49,8 @@ func (s *Storage) GetLogs(ruleID, userID string) ([]models.Log, error) {
 	return logs, nil
 }
 
-func (s *Storage) GetLogByID(id string) (*models.Log, error) {
-	query := "SELECT id, rule_id, user_id, action, status, created_at FROM logs WHERE id = $1"
+func (s *Storage) GetLogById(id string) (*models.Log, error) {
+	query := "SELECT id, rule_id, user_id, action, status, created_at FROM execution_logs WHERE id = $1"
 	row := s.DB.QueryRow(query, id)
 
 	var log models.Log

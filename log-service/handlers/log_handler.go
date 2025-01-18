@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log-service/services"
 	"net/http"
+	"shared/helpers"
 
 	"github.com/go-chi/chi"
 )
@@ -22,31 +22,29 @@ func (h *LogHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 
 	logs, err := h.Service.GetLogs(ruleID, userID)
 	if err != nil {
-		http.Error(w, "Failed to retrieve logs", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(logs)
+	helpers.JSONResponse(w, logs, http.StatusOK)
 }
 
-func (h *LogHandler) GetLogByID(w http.ResponseWriter, r *http.Request) {
+func (h *LogHandler) GetLogById(w http.ResponseWriter, r *http.Request) {
 	logID := chi.URLParam(r, "id")
 	if logID == "" {
-		http.Error(w, "Log ID is required", http.StatusBadRequest)
+		helpers.ErrorResponse(w, "Log ID is required", http.StatusBadRequest)
 		return
 	}
 
-	log, err := h.Service.GetLogByID(logID)
+	log, err := h.Service.GetLogById(logID)
 	if err != nil {
-		http.Error(w, "Failed to retrieve log", http.StatusInternalServerError)
+		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if log == nil {
-		http.Error(w, "Log not found", http.StatusNotFound)
+		helpers.ErrorResponse(w, "Log not found", http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(log)
+	helpers.JSONResponse(w, log, http.StatusOK)
 }

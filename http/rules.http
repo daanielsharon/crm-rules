@@ -1,0 +1,28 @@
+### GET rules
+GET http://localhost:8080/rules
+
+### GET rules by id
+GET http://localhost:8080/rules/1
+
+### POST new rule
+POST http://localhost:8080/rules
+Content-Type: application/json
+
+{
+    "name": "rule3",
+    "condition": "failed_logins > 3",  
+    "schedule": "hours"
+}
+
+### PUT update rule
+PUT http://localhost:8080/rules/1
+Content-Type: application/json
+
+{
+    "name": "rule unkonwn",
+    "condition": "failed_logins > 3",  
+    "schedule": "hours"
+}   
+
+### DELETE rule
+DELETE http://localhost:8080/rules/1

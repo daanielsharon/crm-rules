@@ -1,25 +1,37 @@
 package routes
 
 import (
-	"rules/handlers"
+	"rules-service/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func InitializeRoutes(handler *handlers.RuleHandler) *chi.Mux {
-	router := chi.NewRouter()
+func InitializeRoutes(rules *handlers.RuleHandler, actions *handlers.ActionHandler) *chi.Mux {
+	r := chi.NewRouter()
 
-	router.Use(middleware.Logger)    // Logs requests
-	router.Use(middleware.Recoverer) // Recovers from panics
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	router.Route("/rules", func(r chi.Router) {
-		r.Post("/", handler.CreateRuleHandler)       // POST /rules
-		r.Get("/", handler.GetAllRulesHandler)       // GET /rules
-		r.Get("/{id}", handler.GetRuleById)          // GET /rules/{id}
-		r.Put("/{id}", handler.UpdateRuleHandler)    // PUT /rules/{id}
-		r.Delete("/{id}", handler.DeleteRuleHandler) // DELETE /rules/{id}
+	r.Route("/rules", func(r chi.Router) {
+		r.Get("/", rules.GetAllRulesHandler)
+		r.Post("/", rules.CreateRuleHandler)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", rules.GetRuleById)
+			r.Put("/", rules.UpdateRuleHandler)
+			r.Delete("/", rules.DeleteRuleHandler)
+		})
 	})
 
-	return router
+	r.Route("/actions", func(r chi.Router) {
+		r.Post("/", actions.CreateActionHandler)
+		r.Get("/", actions.GetActionsHandler)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", actions.GetActionById)
+			r.Put("/", actions.UpdateActionHandler)
+			r.Delete("/", actions.DeleteActionHandler)
+		})
+	})
+
+	return r
 }

@@ -1,8 +1,8 @@
 services:
   scheduler:
     build:
-      context: ./worker-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: scheduler/Dockerfile
     container_name: scheduler
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -17,8 +17,8 @@ services:
 
   log-worker:
     build:
-      context: ./log-worker
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: log-worker/Dockerfile
     container_name: log-worker
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -33,8 +33,8 @@ services:
 
   rules-service:
     build:
-      context: ./rules-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: rules-service/Dockerfile
     container_name: rules-service
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -46,11 +46,11 @@ services:
       - app-network
     restart: always
 
-  task-execution-service:
+  task-execution-worker:
     build:
-      context: ./task-execution-service
-      dockerfile: Dockerfile
-    container_name: task-execution-service
+      context: .
+      dockerfile: task-execution-worker/Dockerfile
+    container_name: task-execution-worker
     environment:
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -64,8 +64,8 @@ services:
   
   user-service:
     build:
-      context: ./user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: user-service/Dockerfile
     container_name: user-service
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -79,8 +79,8 @@ services:
   
   log-service:
     build:
-      context: ./log-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: log-service/Dockerfile
     container_name: log-service
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
