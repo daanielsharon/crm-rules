@@ -20,8 +20,9 @@ func (s *ActionService) CreateAction(action *models.Action) error {
 		return errors.New("all fields (rule_id, action) are required")
 	}
 
-	action.CreatedAt = time.Now()
-	action.UpdatedAt = time.Now()
+	now := time.Now()
+	action.CreatedAt = &now
+	action.UpdatedAt = &now
 	return s.Storage.CreateAction(*action)
 }
 
@@ -33,8 +34,12 @@ func (s *ActionService) GetActionById(id string) (*models.Action, error) {
 	return s.Storage.GetActionById(id)
 }
 
-func (s *ActionService) UpdateAction(action *models.Action) error {
-	return s.Storage.UpdateAction(*action)
+func (s *ActionService) UpdateAction(data *models.Action) error {
+	if data.Action == "" {
+		return errors.New("field action is required")
+	}
+
+	return s.Storage.UpdateAction(*data)
 }
 
 func (s *ActionService) DeleteAction(id string) error {

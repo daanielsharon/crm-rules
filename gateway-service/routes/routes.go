@@ -43,8 +43,10 @@ func InitializeRoutes() *chi.Mux {
 	})
 
 	router.Route("/logs", func(r chi.Router) {
-		r.Get("/", handlers.GetLogsHandler)        // GET /logs
-		r.Get("/{id}", handlers.GetLogByIDHandler) // GET /logs/:id
+		r.Get("/", handlers.GetLogsHandler) // GET /logs
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", handlers.GetLogByIDHandler) // GET /logs/:id
+		})
 	})
 
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {

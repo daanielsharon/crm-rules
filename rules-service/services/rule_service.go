@@ -20,8 +20,9 @@ func (s *RuleService) CreateRule(rule *models.Rule) error {
 		return errors.New("all fields (name, condition, schedule) are required")
 	}
 
-	rule.CreatedAt = time.Now()
-	rule.UpdatedAt = time.Now()
+	now := time.Now()
+	rule.CreatedAt = &now
+	rule.UpdatedAt = &now
 	return s.Storage.CreateRule(*rule)
 }
 
@@ -34,11 +35,6 @@ func (s *RuleService) GetRuleById(id string) (*models.Rule, error) {
 }
 
 func (s *RuleService) UpdateRule(rule *models.Rule) error {
-	if rule.Name == "" || rule.Condition == "" || rule.Schedule == "" {
-		return errors.New("all fields (name, condition, schedule) are required")
-	}
-
-	rule.UpdatedAt = time.Now()
 	return s.Storage.UpdateRule(*rule)
 }
 

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"rules-service/models"
-	"time"
 )
 
 type RuleStorage struct {
@@ -61,10 +60,14 @@ func (s *RuleStorage) GetRuleById(id string) (*models.Rule, error) {
 func (s *RuleStorage) UpdateRule(rule models.Rule) error {
 	query := `
 	UPDATE rules
-	SET name = $2, condition = $3, schedule = $4, updated_at = $5
+	SET 
+		name = COALESCE($2, name), 
+		condition = COALESCE($3, condition), 
+		schedule = COALESCE($4, schedule), 
+		updated_at = NOW()
 	WHERE id = $1
 	`
-	_, err := s.DB.Exec(query, rule.ID, rule.Name, rule.Condition, rule.Schedule, time.Now())
+	_, err := s.DB.Exec(query, rule.ID, rule.Name, rule.Condition, rule.Schedule)
 	return err
 }
 
