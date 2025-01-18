@@ -49,8 +49,8 @@ services:
   task-execution-service:
     build:
       context: .
-      dockerfile: task-execution-service/Dockerfile
-    container_name: task-execution-service
+      dockerfile: task-execution-worker/Dockerfile
+    container_name: task-execution-worker
     environment:
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       POSTGRES_HOST: ${POSTGRES_HOST}
