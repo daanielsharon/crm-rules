@@ -24,6 +24,10 @@ func (s *UserService) CreateUser(user models.User) error {
 		return errors.New("invalid email format")
 	}
 
+	if user.Name == "" {
+		return errors.New("name is required")
+	}
+
 	existingUser, err := s.Storage.GetUserByEmail(user.Email)
 	if err != nil {
 		return err

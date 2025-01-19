@@ -48,6 +48,7 @@ The system implements a message-driven microservices architecture, focusing on:
    - Manages database schema migrations
    - Ensures database structure is up to date
 
+   
 ## Technical Deep Dives
 
 ### Messaging Pattern
@@ -67,8 +68,24 @@ The system implements a message-driven microservices architecture, focusing on:
 ### Scalability Considerations
 - Modular service design supports independent scaling
 
-### Security Considerations
-- Rule validation techniques
+### Messaging Workflow
+
+1. **Client Interaction**:
+   - All client requests are initially routed through gateways
+   - Gateways act as the entry point and forward requests to the appropriate service
+
+2. **Rule Creation Workflow**:
+   - When a client wants to create a new rule:
+     a. Gateway forwards the request to the `rules-service`
+     b. `scheduler` picks up the new rule
+     c. Publishes a message to the `rules-execution-worker`
+     d. Rule is executed according to specified conditions
+     e. Impacts are processed for the user retrieved from the `user-service` database
+
+3. **Logging and Tracking**:
+   - After rule execution, a message is published to the `log-worker`
+   - Logs are stored in the database
+   - Clients can access logs through the `log-service` via gateways
 
 ## Learning Insights
 
