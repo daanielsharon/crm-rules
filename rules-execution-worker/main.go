@@ -22,7 +22,7 @@ func main() {
 	postgres := db.InitPostgres()
 	store := storage.New(postgres)
 	publisher := publisher.NewPublisher(redis)
-	processor := consumer.NewTaskProcessor(store, *publisher)
+	processor := consumer.NewTaskProcessor(store, publisher)
 	consumer := consumer.New(redis, processor)
 
 	if err := runService(ctx, consumer); err != nil {

@@ -46,11 +46,11 @@ services:
       - app-network
     restart: always
 
-  task-execution-worker:
+  rules-execution-worker:
     build:
       context: .
-      dockerfile: task-execution-worker/Dockerfile
-    container_name: task-execution-worker
+      dockerfile: rules-execution-worker/Dockerfile
+    container_name: rules-execution-worker
     environment:
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
       POSTGRES_HOST: ${POSTGRES_HOST}

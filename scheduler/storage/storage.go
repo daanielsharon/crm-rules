@@ -92,12 +92,3 @@ func (s *Storage) GetRules() ([]models.Rule, error) {
 
 	return rules, nil
 }
-
-func (s *Storage) LogExecution(ruleID string, status string) error {
-	query := `
-        INSERT INTO execution_logs (rule_id, executed_at, status)
-        VALUES ($1, $2, $3)
-    `
-	_, err := s.DB.Exec(query, ruleID, time.Now(), status)
-	return err
-}
