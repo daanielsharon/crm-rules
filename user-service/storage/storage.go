@@ -38,7 +38,7 @@ func (s *Storage) GetUserById(id string) (*models.User, error) {
 }
 
 func (s *Storage) GetAllUsers() ([]models.User, error) {
-	query := "SELECT id, name, email, created_at FROM users"
+	query := "SELECT id, name, email, last_active, plan, failed_logins, email_verified, created_at, updated_at FROM users"
 	rows, err := s.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (s *Storage) GetAllUsers() ([]models.User, error) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.CreatedAt); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.LastActive, &user.Plan, &user.FailedLogins, &user.EmailVerified, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, user)
