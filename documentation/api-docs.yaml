@@ -1,0 +1,1380 @@
+openapi: 3.0.0
+info:
+  title: CRM Rules Engine API
+  description: API documentation for the CRM Rules Engine microservices
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Rules
+    description: Endpoints for managing business rules
+  - name: Actions
+    description: Endpoints for managing actions associated with rules
+  - name: Users
+    description: Endpoints for user management
+  - name: Logs
+    description: Endpoints for tracking rule execution logs
+
+components:
+  schemas:
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123"
+        name:
+          type: string
+          example: "High Value Customer Rule"
+        condition:
+          type: string
+          example: "customer.spending > 1000"
+        schedule:
+          type: string
+          example: "0 0 * * *"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - name
+        - condition
+        - schedule
+
+    RuleCreation:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "High Value Customer Rule"
+        condition:
+          type: string
+          example: "customer.spending > 1000"
+        schedule:
+          type: string
+          example: "0 0 * * *"
+      required:
+        - name
+        - condition
+        - schedule
+
+    Action:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "456"
+        rule_id:
+          type: string
+          example: "123"
+        action:
+          type: string
+          example: "send_email"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - action
+        - rule_id
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "789"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+
+    Log:
+      type: object
+      properties:
+        id:
+          type: string
+        rule_id:
+          type: string
+        user_id:
+          type: string
+        action:
+          type: string
+        status:
+          type: string
+          enum: [success, failure]
+        executed_at:
+          type: string
+          format: date-time
+
+    GatewayResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          enum: ["success", "failed"]
+          example: "success"
+        data:
+          type: object
+
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+paths:
+  /rules:
+    get:
+      tags:
+        - Rules
+      summary: Get all rules
+      responses:
+        '200':
+          description: List of rules
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Rule'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    post:
+      tags:
+        - Rules
+      summary: Create a new rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCreation'
+      responses:
+        '201':
+          description: Rule created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "High Value Customer Rule"
+                          condition:
+                            type: string
+                            example: "customer.spending > 1000"
+                          schedule:
+                            type: string
+                            example: "0 0 * * *"
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                        required:
+                          - name
+                          - condition
+                          - schedule
+                          - created_at
+                          - updated_at
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /rules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Rules
+      summary: Get a rule by ID
+      responses:
+        '200':
+          description: Rule details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Rule'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 404
+                      message:
+                        type: string
+                        enum: ["failed"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "rule not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    put:
+      tags:
+        - Rules
+      summary: Update a rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCreation'
+      responses:
+        '200':
+          description: Rule updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "High Value Customer Rule"
+                          condition:
+                            type: string
+                            example: "customer.spending > 1000"
+                          schedule:
+                            type: string
+                            example: "0 0 * * *"
+                        required:
+                          - name
+                          - condition
+                          - schedule
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "rule not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    delete:
+      tags:
+        - Rules
+      summary: Delete a rule
+      responses:
+        '200':
+          description: Rule deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          rule_id:
+                            type: string
+                            example: "1"
+                        required:
+                          - rule_id
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "rule not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /actions:
+    get:
+      tags:
+        - Actions
+      summary: Get a list of actions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Action'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    post:
+      tags:
+        - Actions
+      summary: Create a new action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rule_id:
+                  type: string
+                  example: "123"
+                action:
+                  type: string
+                  example: "send_email"
+              required:
+                - rule_id
+                - action
+      responses:
+        '201':
+          description: Action created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 201
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          rule_id:
+                            type: string
+                            example: "123"
+                          action:
+                            type: string
+                            example: "send_email"
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                        required:
+                          - rule_id
+                          - action
+                          - created_at
+                          - updated_at
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /actions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Actions
+      summary: Get an action by ID
+      responses:
+        '200':
+          description: Action details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Action'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 404
+                      message:
+                        type: string
+                        enum: ["failed"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "action not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    put:
+      tags:
+        - Actions
+      summary: Update an action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: "send_email"
+              required:
+                - action
+      responses:
+        '200':
+          description: Action updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          action:
+                            type: string
+                            example: "send_email"
+                        required:
+                          - action
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "action not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    delete:
+      tags:
+        - Actions
+      summary: Delete an action
+      responses:
+        '200':
+          description: Action deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          action_id:
+                            type: string
+                            example: "1"
+                        required:
+                          - action_id
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "action not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: "789"
+                            name:
+                              type: string
+                              example: "John Doe"
+                            email:
+                              type: string
+                              example: "john@example.com"
+                            last_active:
+                              type: string
+                              format: date-time
+                            plan:
+                              type: string
+                              example: "premium"
+                            failed_logins:
+                              type: integer
+                              example: 3
+                            email_verified:
+                              type: boolean
+                              example: false
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                          required:
+                            - id
+                            - name
+                            - email
+                            - last_active
+                            - plan
+                            - failed_logins
+                            - email_verified
+                            - created_at
+                            - updated_at
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                plan:
+                  type: string
+                  example: "basic"
+                failed_logins:
+                  type: integer
+                  example: 0
+                email_verified:
+                  type: boolean
+                  example: false
+                last_active:
+                  type: string
+                  format: date-time
+              required:
+                - name
+                - email
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "789"
+                          name:
+                            type: string
+                            example: "John Doe"
+                          email:
+                            type: string
+                            example: "john@example.com"
+                          plan:
+                            type: string
+                            example: "basic"
+                          failed_logins:
+                            type: integer
+                            example: 0
+                          email_verified:
+                            type: boolean
+                            example: false
+                          last_active:
+                            type: string
+                            format: date-time
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - name
+                          - email
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Get a user by ID
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 404
+                      message:
+                        type: string
+                        enum: ["failed"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "user not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    put:
+      tags:
+        - Users
+      summary: Update a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                plan:
+                  type: string
+                  example: "premium"
+                failed_logins:
+                  type: integer
+                  example: 10
+                email_verified:
+                  type: boolean
+                  example: false
+                last_active:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "John Doe"
+                          email:
+                            type: string
+                            example: "john@example.com"
+                          failed_logins:
+                            type: integer
+                            example: 10
+                          last_active:
+                            type: string
+                            format: date-time
+                          plan:
+                            type: string
+                            example: "premium"
+                        required:
+                          - name
+                          - email
+                          - failed_logins
+                          - last_active
+                          - plan
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "user not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          user_id:
+                            type: string
+                            example: "1f337373b-a2jhnf2"
+                        required:
+                          - user_id
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "user not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /logs:
+    get:
+      tags:
+        - Logs
+      summary: Get execution logs
+      parameters:
+        - name: rule_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [success, failure]
+      responses:
+        '200':
+          description: List of execution logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Log'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 400
+                      message:
+                        type: string
+                        enum: ["failed"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "invalid request"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
+
+  /logs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Logs
+      summary: Get a log entry by ID
+      responses:
+        '200':
+          description: Log entry details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Log'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 404
+                      message:
+                        type: string
+                        enum: ["failed"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "log not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GatewayResponse'
+                  - type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 500
+                      message:
+                        type: string
+                        enum: ["success"]
+                      data:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                            example: "internal server error"
