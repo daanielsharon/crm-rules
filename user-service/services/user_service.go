@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 	"user-service/models"
 	"user-service/storage"
 	"user-service/utils"
@@ -35,6 +36,10 @@ func (s *UserService) CreateUser(user models.User) error {
 	if existingUser != nil {
 		return errors.New("email already in use")
 	}
+
+	now := time.Now()
+	user.LastActive = &now
+	user.Plan = "free"
 
 	return s.Storage.CreateUser(user)
 }
