@@ -4,6 +4,7 @@ import (
 	"errors"
 	"user-service/models"
 	"user-service/storage"
+	"user-service/utils"
 )
 
 type UserService struct {
@@ -19,6 +20,10 @@ func (s *UserService) GetAllUsers() ([]models.User, error) {
 }
 
 func (s *UserService) CreateUser(user models.User) error {
+	if !utils.ValidateEmail(user.Email) {
+		return errors.New("invalid email format")
+	}
+
 	existingUser, err := s.Storage.GetUserByEmail(user.Email)
 	if err != nil {
 		return err
