@@ -87,6 +87,26 @@ The system implements a message-driven microservices architecture, focusing on:
    - Logs are stored in the database
    - Clients can access logs through the `log-service` via gateways
 
+### Rule Update Assumptions
+
+**Eventual Consistency in Rule Updates**
+- Rule updates are not immediately propagated to the scheduler
+- The system uses a periodic refresh mechanism (default: 1-minute interval)
+- Rationale: For non-critical CRM operations, immediate consistency is sacrificed for system stability and system efficiency
+
+#### Tradeoff Considerations
+- **Pros**:
+  - Reduced system load
+  - Prevents conflicting rule updates
+  - Ensures consistent rule execution
+  - Provides buffer against rapid configuration changes
+
+- **Cons**:
+  - Slight delay in rule application
+  - Potential temporary inconsistency between UI and actual rule state
+
+The design prioritizes system stability over real-time rule updates, acknowledging that most CRM rule changes are not time-critical.
+
 ## Learning Insights
 
 ### Design Principles Applied
