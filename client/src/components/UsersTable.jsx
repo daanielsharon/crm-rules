@@ -26,6 +26,7 @@ const UsersTable = ({ users, onUserDelete }) => {
   const [userToDelete, setUserToDelete] = useState(null);
   
   const [userToUpdate, setUserToUpdate] = useState(null);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
 
   const handleDeleteUser = (user) => {
     setUserToDelete(user);
@@ -69,9 +70,7 @@ const UsersTable = ({ users, onUserDelete }) => {
 
       await userService.updateUser(userToUpdate.id, userToUpdateWithIntFailedLogins);
       
-      if (onUserDelete) {
-        onUserDelete();
-      }
+      onUserDelete();
       
       setOpenUpdateModal(false);
       setUserToUpdate(null);

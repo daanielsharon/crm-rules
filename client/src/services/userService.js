@@ -14,7 +14,7 @@ const userService = {
   getUserById: async (userId) => {
     try {
       const response = await axios.get(`/users/${userId}`);
-      return response.data;
+      return response.data.data ? [response.data.data]: [];
     } catch (error) {
       console.error(`Error fetching user ${userId}:`, error);
       throw error;
@@ -24,7 +24,7 @@ const userService = {
   createUser: async (userData) => {
     try {
       const response = await axios.post('/users', userData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
@@ -34,7 +34,7 @@ const userService = {
   updateUser: async (userId, userData) => {
     try {
       const response = await axios.put(`/users/${userId}`, userData);
-      return response.data;
+      return response.data.data
     } catch (error) {
       console.error(`Error updating user ${userId}:`, error);
       throw error;
@@ -44,7 +44,7 @@ const userService = {
   deleteUser: async (userId) => {
     try {
       const response = await axios.delete(`/users/${userId}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error(`Error deleting user ${userId}:`, error);
       throw error;

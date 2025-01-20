@@ -23,9 +23,18 @@ func (s *ActionStorage) CreateAction(action models.Action) error {
 	return s.DB.QueryRow(query, action.RuleID, action.Action).Scan(&action.ID, &action.CreatedAt, &action.UpdatedAt)
 }
 
-func (s *ActionStorage) GetActions() ([]models.Action, error) {
-	query := "SELECT id, rule_id, action, created_at, updated_at FROM rule_actions"
-	rows, err := s.DB.Query(query)
+func (s *ActionStorage) GetActions(ruleID string) ([]models.Action, error) {
+	query := "SELECT id, rule_id, action, created_at, updated_at FROM rule_actions WHERE 1=1"
+	var rows *sql.Rows
+	var err error
+	var args []interface{}
+
+	if ruleID != "" {
+		query += " AND rule_id = $1"
+		args = append(args, ruleID)
+	}
+
+	rows, err = s.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +43,17 @@ func (s *ActionStorage) GetActions() ([]models.Action, error) {
 	var actions []models.Action
 	for rows.Next() {
 		var action models.Action
-		if err := rows.Scan(&action.ID, &action.RuleID, &action.Action, &action.CreatedAt, &action.UpdatedAt); err != nil {
+		err := rows.Scan(&action.ID, &action.RuleID, &action.Action, &action.CreatedAt, &action.UpdatedAt)
+		if err != nil {
 			return nil, err
 		}
 		actions = append(actions, action)
 	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return actions, nil
 }
 

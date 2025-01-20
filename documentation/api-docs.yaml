@@ -473,6 +473,13 @@ paths:
       tags:
         - Actions
       summary: Get a list of actions
+      parameters:
+        - name: rule_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter actions by rule ID
       responses:
         '200':
           description: Successful response
@@ -1251,11 +1258,10 @@ paths:
           in: query
           schema:
             type: string
-        - name: status
+        - name: user_id
           in: query
           schema:
             type: string
-            enum: [success, failure]
       responses:
         '200':
           description: List of execution logs

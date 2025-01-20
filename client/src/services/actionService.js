@@ -7,17 +7,14 @@ const actionService = {
       return response.data.data || [];
     } catch (error) {
       console.error(`Error fetching actions for rule ${ruleId}:`, error);
-      throw error;
+      return [];
     }
   },
 
-  createAction: async (ruleId, actionData) => {
+  createAction: async (actionData) => {
     try {
-      const response = await axios.post('/actions', {
-        rule_id: ruleId,
-        action: actionData
-      });
-      return response.data.data;
+      const response = await axios.post('/actions', actionData);
+      return response.data;
     } catch (error) {
       console.error('Error creating action:', error);
       throw error;
@@ -32,7 +29,7 @@ const actionService = {
       console.error(`Error deleting action ${actionId}:`, error);
       throw error;
     }
-  },
+  }
 };
 
 export default actionService;

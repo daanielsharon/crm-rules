@@ -11,9 +11,9 @@ type RuleStorageInterface interface {
 }
 
 type ActionStorageInterface interface {
-	CreateAction(rule models.Action) error
-	GetActions() ([]models.Action, error)
+	CreateAction(action models.Action) error
+	GetActions(ruleID string) ([]models.Action, error)
 	GetActionById(id string) (*models.Action, error)
-	UpdateAction(rule models.Action) error
+	UpdateAction(action models.Action) error
 	DeleteAction(id string) error
 }

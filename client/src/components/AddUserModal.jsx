@@ -39,16 +39,13 @@ const AddUserModal = ({ open, onClose, onSubmit, user, setUser }) => {
       ? value.replace(/[^0-9]/g, '') 
       : value;
     
-    // Update user state
     setUser(prev => ({ ...prev, [name]: processedValue }));
     
-    // Validate field
     const errorMessage = validateField(name, processedValue);
     setErrors(prev => ({ ...prev, [name]: errorMessage }));
   };
 
   const handleSubmit = () => {
-    // Validate all fields before submission
     const nameError = validateField('name', user.name);
     const emailError = validateField('email', user.email);
     const failedLoginsError = validateField('failed_logins', user.failed_logins);

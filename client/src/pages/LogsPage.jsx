@@ -1,85 +1,103 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TextField } from '@mui/material';
-// import { getLogs } from '../services/logService';
+import { 
+  Box, 
+  TextField, 
+  Typography, 
+  CircularProgress,
+  Button,
+  Tooltip
+} from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import logService from '../services/logService';
+import LogsTable from '../components/LogsTable';
 
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
-  const [filteredLogs, setFilteredLogs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchRuleId, setSearchRuleId] = useState('');
   const [searchUserId, setSearchUserId] = useState('');
-
-  useEffect(() => {
-    fetchLogs();
-  }, []);
+  const [searchRuleId, setSearchRuleId] = useState('');
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const data = await getLogs();
+      const data = await logService.getLogs(searchUserId, searchRuleId);
       setLogs(data);
-      setFilteredLogs(data); // Initially display all logs
     } catch (error) {
-      console.error('Error fetching logs:', error);
+      console.error('Error in LogsPage fetchLogs:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      setLogs([]);
     } finally {
       setLoading(false);
+      console.log('Loading complete, current logs:', logs);
     }
   };
 
-  const handleFilter = () => {
-    let filtered = logs;
-    if (searchRuleId) {
-      filtered = filtered.filter((log) => log.rule_id.includes(searchRuleId));
-    }
-    if (searchUserId) {
-      filtered = filtered.filter((log) => log.user_id.includes(searchUserId));
-    }
-    setFilteredLogs(filtered);
-  };
+  useEffect(() => {
+    fetchLogs();
+  }, [searchUserId, searchRuleId]);
 
   return (
     <Box p={2}>
-      <Box mb={3} display="flex" gap={2}>
+      <Box mb={3} display="flex" gap={2} alignItems="center">
         <TextField
-          label="Filter by Rule ID"
-          value={searchRuleId}
-          onChange={(e) => setSearchRuleId(e.target.value)}
-          onBlur={handleFilter}
-        />
-        <TextField
-          label="Filter by User ID"
+          label="Filter by User ID (optional)"
           value={searchUserId}
-          onChange={(e) => setSearchUserId(e.target.value)}
-          onBlur={handleFilter}
+          onChange={(e) => {
+            setSearchUserId(e.target.value);
+          }}
+          variant="outlined"
+          size="small"
+          fullWidth
+          placeholder="Enter user ID to filter"
         />
+        <TextField
+          label="Filter by Rule ID (optional)"
+          value={searchRuleId}
+          onChange={(e) => {
+            setSearchRuleId(e.target.value);
+          }}
+          variant="outlined"
+          size="small"
+          fullWidth
+          placeholder="Enter rule ID to filter"
+        />
+        <Tooltip title="Refresh Logs">
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            onClick={fetchLogs} 
+            disabled={loading}
+            startIcon={<RefreshIcon />}
+            size="small"
+            sx={{ 
+              height: '40px', 
+              px: 2,  
+              minWidth: '120px'  
+            }}
+          >
+            Refresh
+          </Button>
+        </Tooltip>
       </Box>
 
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Rule ID</TableCell>
-              <TableCell>User ID</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Executed At</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredLogs.map((log) => (
-              <TableRow key={log.id}>
-                <TableCell>{log.id}</TableCell>
-                <TableCell>{log.rule_id}</TableCell>
-                <TableCell>{log.user_id}</TableCell>
-                <TableCell>{log.action}</TableCell>
-                <TableCell>{log.status}</TableCell>
-                <TableCell>{log.executed_at}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {loading ? (
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center" 
+          height="300px"
+        >
+          <CircularProgress />
+        </Box>
+      ) : logs.length === 0 ? (
+        <Typography variant="body1" align="center" color="textSecondary">
+          {(searchUserId || searchRuleId) 
+            ? 'No logs found matching the search criteria' 
+            : 'No logs available'}
+        </Typography>
+      ) : (
+        <LogsTable logs={logs} />
+      )}
     </Box>
   );
 };

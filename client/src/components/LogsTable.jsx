@@ -1,9 +1,36 @@
 import React from 'react';
-import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { 
+  TableContainer, 
+  Table, 
+  TableHead, 
+  TableRow, 
+  TableCell, 
+  TableBody, 
+  Paper,
+  Chip
+} from '@mui/material';
 
-const LogTable = ({ logs }) => {
+const LogsTable = ({ logs }) => {
+  const renderStatusChip = (status) => {
+    const colorMap = {
+      'success': 'success',
+      'failed': 'error',
+      'pending': 'warning',
+      'skipped': 'default'
+    };
+
+    return (
+      <Chip 
+        label={status} 
+        color={colorMap[status.toLowerCase()] || 'default'} 
+        size="small" 
+        variant="outlined"
+      />
+    );
+  };
+
   return (
-    <TableContainer>
+    <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
@@ -22,7 +49,9 @@ const LogTable = ({ logs }) => {
               <TableCell>{log.rule_id}</TableCell>
               <TableCell>{log.user_id}</TableCell>
               <TableCell>{log.action}</TableCell>
-              <TableCell>{log.status}</TableCell>
+              <TableCell>
+                {renderStatusChip(log.status)}
+              </TableCell>
               <TableCell>{log.executed_at}</TableCell>
             </TableRow>
           ))}
@@ -32,4 +61,4 @@ const LogTable = ({ logs }) => {
   );
 };
 
-export default LogTable;
+export default LogsTable;

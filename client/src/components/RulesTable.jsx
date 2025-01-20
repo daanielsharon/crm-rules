@@ -14,33 +14,37 @@ import {
   DialogContentText,
   DialogActions
 } from '@mui/material';
-import actionService from '../services/actionService';
 import ruleService from '../services/ruleService';
-import ActionModal from './ActionModal';
+import actionService from '../services/actionService';
+import ActionsModal from './ActionsModal';
 
 const RulesTable = ({ rules, onRuleDelete }) => {
-  const [selectedRuleActions, setSelectedRuleActions] = useState([]);
-  const [isActionsModalOpen, setIsActionsModalOpen] = useState(false);
   const [selectedRuleId, setSelectedRuleId] = useState(null);
-  
+  const [openActionsModal, setOpenActionsModal] = useState(false);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState(null);
+  const [selectedRuleActions, setSelectedRuleActions] = useState([]);
+  const [loadingActions, setLoadingActions] = useState(false);
 
   const handleViewActions = async (ruleId) => {
+    setSelectedRuleId(ruleId);
+    setLoadingActions(true);
     try {
       const actions = await actionService.getActionsByRuleId(ruleId);
       setSelectedRuleActions(actions);
-      setSelectedRuleId(ruleId);
-      setIsActionsModalOpen(true);
+      setOpenActionsModal(true);
     } catch (error) {
       console.error('Error fetching actions:', error);
+    } finally {
+      setLoadingActions(false);
     }
   };
 
   const handleCloseActionsModal = () => {
-    setIsActionsModalOpen(false);
-    setSelectedRuleActions([]);
+    setOpenActionsModal(false);
     setSelectedRuleId(null);
-  }
+    setSelectedRuleActions([]);
+  };
 
   const handleDeleteRule = (rule) => {
     setRuleToDelete(rule);
@@ -51,22 +55,15 @@ const RulesTable = ({ rules, onRuleDelete }) => {
     if (ruleToDelete) {
       try {
         await ruleService.deleteRule(ruleToDelete.id);
-        
         if (onRuleDelete) {
           onRuleDelete(ruleToDelete.id);
         }
-        
         setOpenConfirmDialog(false);
         setRuleToDelete(null);
       } catch (error) {
         console.error('Error deleting rule:', error);
       }
     }
-  };
-
-  const handleCloseConfirmDialog = () => {
-    setOpenConfirmDialog(false);
-    setRuleToDelete(null);
   };
 
   return (
@@ -79,8 +76,6 @@ const RulesTable = ({ rules, onRuleDelete }) => {
               <TableCell>Name</TableCell>
               <TableCell>Condition</TableCell>
               <TableCell>Schedule</TableCell>
-              <TableCell>Actions</TableCell>
-              <TableCell>Operations</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -116,16 +111,17 @@ const RulesTable = ({ rules, onRuleDelete }) => {
         </Table>
       </TableContainer>
 
-      <ActionModal 
-        open={isActionsModalOpen}
+      <ActionsModal 
+        open={openActionsModal}
         onClose={handleCloseActionsModal}
-        actions={selectedRuleActions}
         ruleId={selectedRuleId}
+        actions={selectedRuleActions}
+        loading={loadingActions}
       />
 
       <Dialog
         open={openConfirmDialog}
-        onClose={handleCloseConfirmDialog}
+        onClose={() => setOpenConfirmDialog(false)}
       >
         <DialogTitle>Confirm Rule Deletion</DialogTitle>
         <DialogContent>
@@ -135,7 +131,7 @@ const RulesTable = ({ rules, onRuleDelete }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color="primary">
+          <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
             Cancel
           </Button>
           <Button onClick={confirmDeleteRule} color="error" autoFocus>

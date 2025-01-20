@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button } from '@mui/material';
 import AddRuleModal from '../components/AddRuleModal';
-// import { getRules, createRule } from '../services/ruleService';
 import RuleTable from '../components/RulesTable';
+import ruleService from '../services/ruleService';
 
 const RulesPage = () => {
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [newRule, setNewRule] = useState({ condition: '', actions: [] });
+  const [newRule, setNewRule] = useState({ 
+    name: '',
+    condition: '', 
+    schedule: '',
+    actions: [] 
+  });
 
   useEffect(() => {
     fetchRules();
@@ -17,7 +22,7 @@ const RulesPage = () => {
   const fetchRules = async () => {
     setLoading(true);
     try {
-      const data = await getRules();
+      const data = await ruleService.getRules();
       setRules(data);
     } catch (error) {
       console.error('Error fetching rules:', error);
@@ -28,10 +33,15 @@ const RulesPage = () => {
 
   const handleAddRule = async () => {
     try {
-      await createRule(newRule);
-      fetchRules();
+      await ruleService.createRule(newRule);
+      await fetchRules();
       setOpenModal(false);
-      setNewRule({ condition: '', actions: [] });
+      setNewRule({ 
+        name: '',
+        condition: '', 
+        schedule: '',
+        actions: [] 
+      });
     } catch (error) {
       console.error('Error adding rule:', error);
     }
@@ -39,10 +49,22 @@ const RulesPage = () => {
 
   return (
     <Box p={2}>
-      <Button variant="contained" color="primary" onClick={() => setOpenModal(true)}>
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => setOpenModal(true)}
+        sx={{ my: 2 }}
+      >
         Add Rule
       </Button>
-      <RuleTable rules={rules} />
+      
+      <RuleTable 
+        rules={rules} 
+        onRuleDelete={(deletedRuleId) => {
+          setRules(rules.filter(rule => rule.id !== deletedRuleId));
+        }} 
+      />
+
       <AddRuleModal
         open={openModal}
         onClose={() => setOpenModal(false)}

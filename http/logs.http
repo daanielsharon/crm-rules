@@ -1,5 +1,14 @@
 ### GET logs
 GET http://localhost:8080/logs/
 
+### GET logs by user_id and rule_id
+GET http://localhost:8080/logs?rule_id=2&user_id=aed87786-a125-4e98-823c-6fae4086e7b9
+
+### GET logs by user_id
+GET http://localhost:8080/logs?user_id=aed87786-a125-4e98-823c-6fae4086e7b9
+
+### GET logs by rule_id
+GET http://localhost:8080/logs?rule_id=2
+
 ### GET logs by id
-GET http://localhost:8080/logs/c5370710-6fdb-4cc8-94a4-8fc6a92f6407
+GET http://localhost:8080/logs/43592f2b-ecf9-4a2a-be3e-1c31a212c5d2

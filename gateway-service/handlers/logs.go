@@ -4,13 +4,31 @@ import (
 	"gateway/config"
 	"gateway/utils"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func GetLogsHandler(w http.ResponseWriter, r *http.Request) {
 	serviceURLs := config.NewServiceURLs()
-	response, err := utils.ForwardRequest(serviceURLs.LogServiceURL, http.MethodGet, nil)
+
+	ruleID := r.URL.Query().Get("rule_id")
+	userID := r.URL.Query().Get("user_id")
+
+	fullURL := strings.TrimSuffix(serviceURLs.LogServiceURL, "/")
+
+	var queryParams []string
+	if ruleID != "" {
+		queryParams = append(queryParams, "rule_id="+ruleID)
+	}
+	if userID != "" {
+		queryParams = append(queryParams, "user_id="+userID)
+	}
+
+	joinedParams := strings.TrimSuffix(strings.Join(queryParams, "&"), "&")
+	fullURL += "?" + joinedParams
+
+	response, err := utils.ForwardRequest(fullURL, http.MethodGet, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to fetch logs: "+err.Error(), http.StatusInternalServerError)
 		return

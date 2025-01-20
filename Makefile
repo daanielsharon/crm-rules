@@ -12,6 +12,7 @@ start:
 	@echo "Waiting for migrations to complete..."
 	@sleep 5
 	docker compose -f docker-compose.services.yml up -d --build
+	@echo "Please open http://localhost:80 in your favorite browser"
 
 stop:
 	docker compose -f docker-compose.services.yml down

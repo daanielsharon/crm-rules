@@ -12,7 +12,7 @@ type RuleServiceInterface interface {
 
 type ActionServiceInterface interface {
 	CreateAction(rule *models.Action) error
-	GetActions() ([]models.Action, error)
+	GetActions(rule_id string) ([]models.Action, error)
 	GetActionById(id string) (*models.Action, error)
 	UpdateAction(rule *models.Action) error
 	DeleteAction(id string) error
