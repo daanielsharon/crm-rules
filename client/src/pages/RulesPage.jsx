@@ -60,9 +60,12 @@ const RulesPage = () => {
       
       <RuleTable 
         rules={rules} 
-        onRuleDelete={(deletedRuleId) => {
-          setRules(rules.filter(rule => rule.id !== deletedRuleId));
-        }} 
+        onRuleDelete={() => {
+          fetchRules(); 
+        }}
+        onRuleUpdate={() => {
+          fetchRules(); 
+        }}
       />
 
       <AddRuleModal

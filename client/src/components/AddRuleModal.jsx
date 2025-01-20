@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Modal, 
   Box, 
@@ -45,6 +45,14 @@ const AddRuleModal = ({ open, onClose, onSubmit, rule, setRule }) => {
   const [conditionTemplate, setConditionTemplate] = useState(null);
   const [conditionValues, setConditionValues] = useState({});
   const [inputErrors, setInputErrors] = useState({});
+
+  useEffect(() => {
+    if (open) {
+      setConditionTemplate(null);
+      setConditionValues({});
+      setInputErrors({});
+    }
+  }, [open]);
 
   const handleConditionTemplateChange = (template) => {
     setConditionTemplate(template);
@@ -188,7 +196,15 @@ const AddRuleModal = ({ open, onClose, onSubmit, rule, setRule }) => {
             Cancel
           </Button>
           <Button 
-            onClick={onSubmit} 
+            onClick={() => {
+              onSubmit();
+              setRule({
+                name: '',
+                condition: '',
+                schedule: '',
+                actions: []
+              });
+            }} 
             variant="contained" 
             color="primary"
             disabled={

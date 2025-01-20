@@ -12,17 +12,21 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Box
 } from '@mui/material';
 import ruleService from '../services/ruleService';
 import actionService from '../services/actionService';
+import AddRuleModal from './AddRuleModal';
 import ActionsModal from './ActionsModal';
 
-const RulesTable = ({ rules, onRuleDelete }) => {
+const RulesTable = ({ rules, onRuleDelete, onRuleUpdate, refreshRules }) => {
   const [selectedRuleId, setSelectedRuleId] = useState(null);
   const [openActionsModal, setOpenActionsModal] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [ruleToDelete, setRuleToDelete] = useState(null);
+  const [ruleToUpdate, setRuleToUpdate] = useState(null);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [selectedRuleActions, setSelectedRuleActions] = useState([]);
   const [loadingActions, setLoadingActions] = useState(false);
 
@@ -55,14 +59,50 @@ const RulesTable = ({ rules, onRuleDelete }) => {
     if (ruleToDelete) {
       try {
         await ruleService.deleteRule(ruleToDelete.id);
+        setOpenConfirmDialog(false);
+        
         if (onRuleDelete) {
           onRuleDelete(ruleToDelete.id);
         }
-        setOpenConfirmDialog(false);
+        
         setRuleToDelete(null);
       } catch (error) {
         console.error('Error deleting rule:', error);
+        alert(`Failed to delete rule: ${error.message}`);
+        
+        setOpenConfirmDialog(false);
       }
+    }
+  };
+
+  const handleUpdateRule = (rule) => {
+    setRuleToUpdate({
+      id: rule.id,
+      name: rule.name,
+      condition: rule.condition,
+      schedule: rule.schedule,
+      actions: rule.actions || []
+    });
+    setOpenUpdateModal(true);
+  };
+
+  const handleUpdateSubmit = async () => {
+    try {
+      await ruleService.updateRule(ruleToUpdate.id, {
+        name: ruleToUpdate.name,
+        condition: ruleToUpdate.condition,
+        schedule: ruleToUpdate.schedule,
+        actions: ruleToUpdate.actions || []
+      });
+      
+      if (onRuleUpdate) {
+        onRuleUpdate();
+      }
+      
+      setOpenUpdateModal(false);
+      setRuleToUpdate(null);
+    } catch (error) {
+      console.error('Error updating rule:', error);
     }
   };
 
@@ -76,6 +116,7 @@ const RulesTable = ({ rules, onRuleDelete }) => {
               <TableCell>Name</TableCell>
               <TableCell>Condition</TableCell>
               <TableCell>Schedule</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -86,24 +127,32 @@ const RulesTable = ({ rules, onRuleDelete }) => {
                 <TableCell>{rule.condition}</TableCell>
                 <TableCell>{rule.schedule}</TableCell>
                 <TableCell>
-                  <Button 
-                    variant="outlined" 
-                    color="primary" 
-                    size="small"
-                    onClick={() => handleViewActions(rule.id)}
-                  >
-                    View Actions
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="outlined" 
-                    color="error" 
-                    size="small"
-                    onClick={() => handleDeleteRule(rule)}
-                  >
-                    Delete
-                  </Button>
+                  <Box display="flex" gap={1}>
+                    <Button 
+                      variant="outlined" 
+                      color="primary" 
+                      size="small"
+                      onClick={() => handleViewActions(rule.id)}
+                    >
+                      View Actions
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      color="secondary" 
+                      size="small"
+                      onClick={() => handleUpdateRule(rule)}
+                    >
+                      Update
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      color="error" 
+                      size="small"
+                      onClick={() => handleDeleteRule(rule)}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}
@@ -118,6 +167,16 @@ const RulesTable = ({ rules, onRuleDelete }) => {
         actions={selectedRuleActions}
         loading={loadingActions}
       />
+
+      {ruleToUpdate && (
+        <AddRuleModal
+          open={openUpdateModal}
+          onClose={() => setOpenUpdateModal(false)}
+          onSubmit={handleUpdateSubmit}
+          rule={ruleToUpdate}
+          setRule={setRuleToUpdate}
+        />
+      )}
 
       <Dialog
         open={openConfirmDialog}

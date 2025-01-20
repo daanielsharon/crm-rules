@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"log"
-	"strconv"
+	"sync"
 	"time"
 
 	"worker-service/models"
@@ -16,89 +16,105 @@ type Scheduler struct {
 	Storage   *storage.Storage
 	Publisher *publisher.Publisher
 	Cron      *cron.Cron
-	Rules     map[string]cron.EntryID
+	Rules     map[cron.EntryID]models.Rule
+	mu        sync.RWMutex
+	stopChan  chan struct{}
 }
 
 func NewScheduler(storage *storage.Storage, publisher *publisher.Publisher) *Scheduler {
 	return &Scheduler{
 		Storage:   storage,
 		Cron:      cron.New(),
-		Rules:     make(map[string]cron.EntryID),
+		Rules:     make(map[cron.EntryID]models.Rule),
 		Publisher: publisher,
+		stopChan:  make(chan struct{}),
 	}
 }
 
 func (s *Scheduler) Start() {
-	go s.scheduleRefresher()
+	s.Cron.Start()
+	go s.periodicRuleSync()
 
 	log.Println("Scheduler started!")
-	s.Cron.Start()
 }
 
-func (s *Scheduler) scheduleRefresher() {
+func (s *Scheduler) Stop() {
+	s.Cron.Stop()
+	close(s.stopChan)
+
+	log.Println("Scheduler stopped!")
+}
+
+func (s *Scheduler) periodicRuleSync() {
+	s.syncRules()
+
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
 	for {
-		s.refreshRules()
-		time.Sleep(1 * time.Minute)
+		select {
+		case <-ticker.C:
+			s.syncRules()
+		case <-s.stopChan:
+			return
+		}
 	}
 }
 
-func (s *Scheduler) refreshRules() {
+func (s *Scheduler) syncRules() {
 	rules, err := s.Storage.GetRules()
 	if err != nil {
 		log.Printf("Failed to fetch rules: %v", err)
 		return
 	}
 
-	newRules := s.getNewRules(rules)
-	s.scheduleNewRules(newRules)
-	s.removeStaleRules(rules)
-}
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-func (s *Scheduler) getNewRules(latestRules []models.Rule) []models.Rule {
-	var newRules []models.Rule
-	for _, rule := range latestRules {
-		ruleIDStr := strconv.Itoa(rule.ID)
-		if _, exists := s.Rules[ruleIDStr]; !exists {
-			newRules = append(newRules, rule)
-		}
+	for entryID := range s.Rules {
+		s.Cron.Remove(entryID)
 	}
-	return newRules
-}
+	s.Rules = make(map[cron.EntryID]models.Rule)
 
-func (s *Scheduler) scheduleNewRules(newRules []models.Rule) {
-	for _, rule := range newRules {
-		s.addRuleToScheduler(rule)
+	for _, rule := range rules {
+		s.scheduleRule(rule)
 	}
+
+	log.Printf("Synced %d rules", len(rules))
 }
 
-func (s *Scheduler) addRuleToScheduler(rule models.Rule) {
+func (s *Scheduler) scheduleRule(rule models.Rule) {
 	cronExpression := mapScheduleToCron(rule.Schedule)
+
 	entryID, err := s.Cron.AddFunc(cronExpression, func() {
 		s.processRule(rule)
 	})
+
 	if err != nil {
 		log.Printf("Failed to schedule rule '%s': %v", rule.Name, err)
 		return
 	}
 
-	ruleIDStr := strconv.Itoa(rule.ID)
-	s.Rules[ruleIDStr] = entryID
-	log.Printf("Scheduled new rule: %s", rule.Name)
+	s.Rules[entryID] = rule
+	log.Printf("Scheduled rule: %s", rule.Name)
 }
 
-func (s *Scheduler) removeStaleRules(latestRules []models.Rule) {
-	latestRuleIDs := make(map[string]struct{})
-	for _, rule := range latestRules {
-		ruleIDStr := strconv.Itoa(rule.ID)
-		latestRuleIDs[ruleIDStr] = struct{}{}
-	}
+func (s *Scheduler) processRule(rule models.Rule) {
+	log.Printf("Processing rule: %s", rule.Name)
 
-	for ruleID, entryID := range s.Rules {
-		if _, exists := latestRuleIDs[ruleID]; !exists {
-			s.Cron.Remove(entryID)
-			delete(s.Rules, ruleID)
-			log.Printf("Removed stale rule: %s", ruleID)
+	for _, action := range rule.Actions {
+		err := s.Publisher.PublishTask(publisher.NewTask(
+			rule.ID,
+			rule.Name,
+			rule.Condition,
+			action.Action,
+		))
+		if err != nil {
+			log.Printf("Failed to publish task for action %s: %v", action.Action, err)
+			continue
 		}
+
+		log.Printf("Successfully sent task for action %s to execution service", action.Action)
 	}
 }
 
@@ -119,24 +135,5 @@ func mapScheduleToCron(schedule string) string {
 	default:
 		log.Printf("Unknown schedule: %s. Defaulting to hourly.", schedule)
 		return "0 * * * *"
-	}
-}
-
-func (s *Scheduler) processRule(rule models.Rule) {
-	log.Printf("Processing rule: %s", rule.Name)
-
-	for _, action := range rule.Actions {
-		err := s.Publisher.PublishTask(publisher.NewTask(
-			rule.ID,
-			rule.Name,
-			rule.Condition,
-			action.Action,
-		))
-		if err != nil {
-			log.Printf("Failed to publish task for action %s: %v", action.Action, err)
-			continue
-		}
-
-		log.Printf("Successfully sent task for action %s to execution service", action.Action)
 	}
 }
