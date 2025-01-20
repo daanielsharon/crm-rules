@@ -4,6 +4,7 @@ import (
 	"log-service/services"
 	"net/http"
 	"shared/helpers"
+	"strings"
 
 	"github.com/go-chi/chi"
 )
@@ -30,7 +31,17 @@ func (h *LogHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LogHandler) GetLogById(w http.ResponseWriter, r *http.Request) {
+
 	logID := chi.URLParam(r, "id")
+
+	// If chi.URLParam fails, try getting from path
+	if logID == "" {
+		pathSegments := strings.Split(r.URL.Path, "/")
+		if len(pathSegments) > 2 {
+			logID = pathSegments[2]
+		}
+	}
+
 	if logID == "" {
 		helpers.ErrorResponse(w, "Log ID is required", http.StatusBadRequest)
 		return
@@ -38,11 +49,7 @@ func (h *LogHandler) GetLogById(w http.ResponseWriter, r *http.Request) {
 
 	log, err := h.Service.GetLogById(logID)
 	if err != nil {
-		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if log == nil {
-		helpers.ErrorResponse(w, "Log not found", http.StatusNotFound)
+		helpers.ErrorResponse(w, "Failed to fetch log: "+err.Error(), http.StatusNotFound)
 		return
 	}
 

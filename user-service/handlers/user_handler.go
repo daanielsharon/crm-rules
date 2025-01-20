@@ -24,7 +24,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.Service.CreateUser(user); err != nil {
-		helpers.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
+		helpers.ErrorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -35,7 +35,8 @@ func (h *ActionHandler) CreateActionHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *ActionHandler) GetActionsHandler(w http.ResponseWriter, r *http.Request) {
-	actions, err := h.Service.GetActions()
+	ruleID := r.URL.Query().Get("rule_id")
+	actions, err := h.Service.GetActions(ruleID)
 	if err != nil {
 		helpers.ErrorResponse(w, "Failed to fetch actions: "+err.Error(), http.StatusInternalServerError)
 		return

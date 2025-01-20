@@ -15,8 +15,8 @@ func (m *MockActionStorage) CreateAction(action models.Action) error {
 	return args.Error(0)
 }
 
-func (m *MockActionStorage) GetActions() ([]models.Action, error) {
-	args := m.Called()
+func (m *MockActionStorage) GetActions(ruleID string) ([]models.Action, error) {
+	args := m.Called(ruleID)
 	return args.Get(0).([]models.Action), args.Error(1)
 }
 

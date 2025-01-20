@@ -4,6 +4,7 @@ import (
 	"gateway/config"
 	"gateway/utils"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -39,7 +40,14 @@ func UpdateActionHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetActionsHandler(w http.ResponseWriter, r *http.Request) {
 	serviceURLs := config.NewServiceURLs()
-	response, err := utils.ForwardRequest(serviceURLs.ActionsServiceURL, http.MethodGet, nil)
+
+	ruleID := r.URL.Query().Get("rule_id")
+	fullURL := strings.TrimSuffix(serviceURLs.ActionsServiceURL, "/")
+	if ruleID != "" {
+		fullURL += "?rule_id=" + ruleID
+	}
+
+	response, err := utils.ForwardRequest(fullURL, http.MethodGet, nil)
 	if err != nil {
 		utils.ErrorResponse(w, "Failed to fetch actions: "+err.Error(), http.StatusInternalServerError)
 		return

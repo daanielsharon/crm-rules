@@ -26,8 +26,8 @@ func (s *ActionService) CreateAction(action *models.Action) error {
 	return s.Storage.CreateAction(*action)
 }
 
-func (s *ActionService) GetActions() ([]models.Action, error) {
-	return s.Storage.GetActions()
+func (s *ActionService) GetActions(ruleID string) ([]models.Action, error) {
+	return s.Storage.GetActions(ruleID)
 }
 
 func (s *ActionService) GetActionById(id string) (*models.Action, error) {

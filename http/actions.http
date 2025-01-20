@@ -1,6 +1,9 @@
 ### GET
 GET http://localhost:8080/actions
 
+### GET
+GET http://localhost:8080/actions?rule_id=1
+
 ### GET by id
 GET http://localhost:8080/actions/1
 

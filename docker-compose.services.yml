@@ -109,6 +109,27 @@ services:
     ports:
       - "8080:8080"
     restart: always
+  
+  client: 
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    networks:
+      - app-network
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - rules-service
+      - user-service
+      - log-service
+      - scheduler
+      - log-worker
+      - rules-execution-worker
+      - gateway-service
 
 networks:
   app-network:
